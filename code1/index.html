@@ -1,0 +1,44 @@
+<script src=gl_lib1.js></script>
+
+<script>
+
+// THE VERTEX SHADER RUNS ONCE PER TRIANGLE VERTEX.
+
+var vertexShader = [
+,'   attribute vec3 a_pos;'
+,'   varying   vec3 v_pos;'
+,'   void main() {'
+,'      gl_Position = vec4(a_pos, 1.0);'
+,'      v_pos = a_pos;'
+,'   }'
+].join('\n');
+
+// THE FRAGMENT SHADER RUNS ONCE PER PIXEL FRAGMENT.
+
+/*
+   Your assignment is to write a more interesting version of the
+   fragment shader program.  Try to have fun with it -- use "u_time"
+   to create animated patterns, and "u_mouse" to make it responsive
+   to a user's mouse gestures.
+*/
+
+var fragmentShader = [
+,'   precision mediump float;'
+,'   uniform float u_time;'
+,'   uniform vec3  u_mouse;'
+,'   varying vec3  v_pos;'
+,'   void main() {'
+,'      float x = mod(2.*(v_pos.x - u_mouse.x*u_mouse.z), 1.);'
+,'      float y = mod(2.*(v_pos.y - u_mouse.y*u_mouse.z), 1.);'
+,'      gl_FragColor = vec4(x*.5+.5, 0.5+0.5*sin(3.*u_time), y*.5+.5, 1.0);'
+,'   }'
+].join('\n');
+
+// START GL PROGRAM
+
+start_gl("canvas1", vertexShader, fragmentShader);
+
+</script>
+
+<canvas id="canvas1" width="640" height="640"></canvas>
+
