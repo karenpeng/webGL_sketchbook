@@ -1,0 +1,92 @@
+<script src=gl_lib2.js></script>
+
+<script>
+
+/*
+   The following two functions are optional.
+   If you define initialize_gl, it will be called once.
+   If you define update_gl, it will be called every animation frame.
+   Here we are using them to initialize and then update uniform vars.
+*/
+
+var initialize_gl = function(gl) {
+   gl.u_array1 = gl.getUniformLocation(gl.prog, "u_array1");
+   gl.u_array2 = gl.getUniformLocation(gl.prog, "u_array2");
+};
+
+/*
+   Notice that the number of items passed to a uniform needs to equal the size of that uniform.
+   u_array1 is type float[4], so it needs 1 * 4 == 4 values.
+   u_array2 is type  vec2[4], so it needs 2 * 4 == 8 values.
+*/
+
+var update_gl = function(gl) {
+   gl.uniform1fv(gl.u_array1, new Float32Array([0,0,0,0]));
+   gl.uniform2fv(gl.u_array2, new Float32Array([0.5,0, 1,1, 2,2, 3,3]));
+}
+
+// THE VERTEX SHADER RUNS ONCE PER TRIANGLE VERTEX.
+
+var vertexShader = [
+,'   attribute vec3 a_pos;'
+,'   varying   vec3 v_pos;'
+,'   void main() {'
+,'      gl_Position = vec4(a_pos, 1.0);'
+,'      v_pos = a_pos;'
+,'   }'
+].join('\n');
+
+// THE FRAGMENT SHADER RUNS ONCE PER PIXEL FRAGMENT.
+
+/*
+   Notice how I pass arrays of values below, using u_array1 and u_array2.
+   You must explicitly declare the size of an array in a fragment shader.
+*/
+
+var fragmentShader = [
+,'   precision mediump float;'
+,'   uniform float u_pixelSize;'
+,'   uniform float u_time;'
+,'   uniform float u_array1[4];'
+,'   uniform vec2  u_array2[4];'
+,'   uniform vec3  u_mouse;'
+,'   varying vec3  v_pos;'
+,'   float edge(float t) {'
+,'      return clamp(.5 + t / u_pixelSize, 0., 1.);'
+,'   }'
+,'   void main() {'
+,'      float x = mod(2.*(v_pos.x - u_mouse.x*u_mouse.z), 1.);'
+,'      float y = mod(2.*(v_pos.y - u_mouse.y*u_mouse.z), 1.);'
+,'      float t = edge(v_pos.x + v_pos.y * 0.1 * sin(u_time));'
+,'      float s = u_array2[0].x + t;'
+//,'      gl_FragColor = vec4(s, 0.5+0.5*sin(3.*u_time), y*.5+.5, 1.0);'
+,'      gl_FragColor = vec4(v_pos.x + v_pos.y * 0.1 * sin(u_time), v_pos.x + v_pos.y * 0.1 * sin(u_time), sin(u_time)*0.5+0.5, 1.0);'
+//,'      gl_FragColor = vec4(t, t, sin(u_time)*0.5+0.5, 1.0);'
+,'   }'
+].join('\n');
+
+// START GL PROGRAM
+
+start_gl("canvas1", vertexShader, fragmentShader);
+
+</script>
+
+<body bgcolor=black>
+<center>
+<table>
+<tr>
+<th>
+<font color=white face=helvetica>
+This is my even more cool example!!!!
+<p>
+<canvas id="canvas1" width="640" height="640"></canvas>
+</th>
+<td width=50></td>
+<td valign=top>
+<font color=white face=helvetica>
+In this variant of the code, I show how to pass arrays of values into a fragment shader.
+</td>
+</tr>
+</table>
+</center>
+
