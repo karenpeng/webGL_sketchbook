@@ -8,17 +8,17 @@ html, body{
 }
 #canvas1{
    position: absolute;
-   top:50%;
+   top: 50%;
    left: 50%;
-   margin-top: -240px;
-   margin-left: -640px;
+   margin-top: -120px;
+   margin-left: -480px;
 }
 
 </style>
 <audio autoplay loop><source src="murcof_cosmos.mp3"></audio>
 <script src=lib1.js></script>
 
-<canvas id='canvas1' width='1280' height='480'></canvas>
+<canvas id='canvas1' width='960' height='240'></canvas>
 
 <script id='my_vertex_shader' type='x-shader/x-vertex'>
    attribute vec3 aPosition;
@@ -58,7 +58,7 @@ html, body{
       float s = 0.0, v = 0.0;
       vec2 uv = vec2(vPosition.x, vPosition.y);
       float t = uTime;
-      uv.x *= 2.66;
+      uv.x *= 4.0;
       uv.x += sin(t) * 0.005;
       //omg a two by two rotation matrix!!!!!!
       //float co = cos(t);
@@ -72,16 +72,16 @@ html, body{
       //this line is magic!!!
       //move the whole thing up and down with a sine wave
       //along the z axis also
-      vec3 init = vec3(0.25, 0.25 + sin(t*0.5) * 0.4, floor(t * 90.0) * 0.0008);
+      vec3 init = vec3(0.25, 0.25 + sin(t * 0.5) * 0.4, floor(t * 80.0) * 0.0008);
       //vec3 init = vec3(0.25, 0.25 + sin(t*0.5) * 0.4, cos(t*10.0) * 0.0008);
 
 
       //humm...looks like this loop is blurring the light drop in z axis?
-      for (int r = 0; r < 106; r++){
+      for (int r = 0; r < 80; r++){
 
          //looks like the vector is making the light cluster like
          //but this is insane!!!
-         vec3 p = init + s * vec3(uv, 0.245);
+         vec3 p = init + s * vec3(uv, 0.205);
 
          //not sure what this does
          p.z = mod(p.z, 2.0);
@@ -98,7 +98,7 @@ html, body{
          //v +=1.0;
 
          //tweaking the color
-         col +=  vec3(v * 0.8 * cos(t * 0.1),  .7 + v  * 0.5 * sin(t*0.01), 1.1 - s * 0.5* sin(t * 0.08)) * v * 0.013;
+         col +=  vec3(v * 0.8 * cos(t * 0.1),  .7 + v  * 0.5 * sin(t*0.02), 1.1 - s * 0.5* sin(t * 0.08)) * v * 0.013;
 
          s += .01;
       }
