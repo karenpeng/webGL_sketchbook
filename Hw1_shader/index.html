@@ -15,6 +15,9 @@
 
 
 
+
+
+
    precision mediump float;
    uniform float uTime;
    uniform vec3  uCursor;
@@ -36,6 +39,41 @@
      //     color = vec3(t, t, t);                         //    Make cool easter egg-like
      //     color.r *= 1. + .2 * sin(30. * (x + .5 * z + .03 * sin(20. * y))); // pattern.
      //  }
+
+   color = vec3(x + sin(uTime),cos(uTime -y),sin(uTime+x*x));
+
+   if(floor(y*6.) == floor(sin(10. * uTime))){
+      color = vec3(0., sin(uTime * y *x), 0.);
+   }
+
+   if(floor(y*1.) == floor(cos(x * 10. * uTime))){
+      color = vec3(0.,0.,cos(uTime * x * y));
+   }
+
+   float rr0 = ( x * x + (y - sin(uTime)) * y)/.5;
+   if(rr0 < 1.){
+      float z = sqrt(1. - rr0);
+      float t = .2 + .5 * max(0., x + y + z);
+      color = vec3(t, z, 0.);
+   }
+
+   float xOff = 0.;
+   float yOff = 0.;
+
+   for(float i = 0.; i < 6.; i++){
+
+      xOff = cos(i + uTime ) * .5 +uCursor.x;
+      yOff = sin(i + uTime ) * .5 + uCursor.y;
+      float rr1 = ((x - xOff) * (x - xOff) + (y - yOff) * (y - yOff)) / .1;
+
+      if(rr1 < 1.){
+         float z = sqrt(1. - rr1);
+         float t = .2 + .5 * max(0., z);
+         color = vec3(z * 0.6, cos(x)*0.01 + sin(uTime * 40.)*0.4, sin(y));
+         color.r *= 1. + .2 * sin(30. * (x + .5 * z*i + .03 * sin(20. * i)));
+      }
+   }
+
    float littleX = 0.002;
    float littleY = 0.002;
 
@@ -52,26 +90,8 @@
       }
    }
 
-
-   float xOff = 0.;
-   float yOff = 0.;
-
-   for(float i = 0.; i < 6.; i++){
-
-      xOff = cos(i + uTime) * .5 ;
-      yOff = sin(i + uTime) * .5;
-      float rr1 = ((x - xOff) * (x - xOff) + (y - yOff) * (y - yOff)) / .06;
-
-      if(rr1 < 1.){
-         float z = sqrt(1. - rr1);
-         float t = .2 + .5 * max(0., z);
-         color = vec3(z, cos(x)*0.01 + sin(uTime * 40.)*0.4, sin(y));
-         color.r *= 1. + .2 * sin(30. * (x + .5 * z + .03 * sin(20. * y)));
-      }
-   }
-
-   x += sin(uTime) * .2;
-   y += cos(uTime) * .2;
+   float _x =x + sin(uTime) * .2;
+   float _y = y+cos(uTime) * .2;
 
    float littleColor = 0.;
 
@@ -79,22 +99,25 @@
 
          littleX += sin(uTime) * .2 + .2;
          littleY -= cos(uTime) * .2;
-         float rr1 = ((x - littleX) * (x - littleX) + (y - littleY) * (y - littleY)) / .05;
+         float rr1 = ((_x - littleX) * (_x - littleX) + (_y - littleY) * (_y - littleY)) / .05;
 
          littleColor += 0.1 * sin(uTime);
 
          if(rr1 < 1.){
             float z = sqrt(1. - rr1);
             float t = .2 + .5 * max(0., z);
-            color = vec3(t+sin(x), t+littleColor, t);
+            color = vec3(t+sin(_x), t+littleColor, t);
       }
 
    }
+
 
    gl_FragColor = vec4(color, 1.);
     //gl_FragColor = vec4(x, y , 0., 1.);
 
    }
+
+
 
 
 
