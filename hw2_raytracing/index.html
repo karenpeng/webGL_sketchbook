@@ -77,19 +77,32 @@
       vec3 D = vec3(vPosition.x, vPosition.y, .5);
       W = D/ sqrt( dot(D, D));
 
-      // YOU NEED TO SET x,y,z AND r FOR sphere.
-      sphere = vec4(0., 0., 0., .4);
-
       // YOU NEED TO SET r,g,b FOR material.
       material = vec3(1., 1., 1.);
 
       vec3 color = vec3(0., 0., 0.);
 
+      // YOU NEED TO SET x,y,z AND r FOR sphere.
 
-      float t = raySphere(V, W, sphere);
-      if (t < 10000.)
-         color = shadeSphere(V + t * W, sphere, material);
+      // It works for one sphere:
+      // sphere = vec4(0., 0., 0., .4);
+      // float t = raySphere(V, W, sphere);
+      // if (t < 10000.)
+      //    color = shadeSphere(V + t * W, sphere, material);
 
+      // gl_FragColor = vec4(sqrt(color), 1.); // Do Gamma correction.
+
+      // But have error with multiple spheres:
+      vec4 spheres[3]; // Note that I am explicitly setting the size of the array.
+      for (int i = 0 ; i < 3 ; i++) { // and also the size of the loop.
+         float j = 0.;
+         sphere[i] = vec4(0., sin(uTime + j), 0., cos(uTime));
+         float t = raySphere(V, W, sphere[i]);
+         if (t < 10000.){
+            color = shadeSphere(V + t * W, sphere[i], material);
+         }
+         j += 1.;
+      }
       gl_FragColor = vec4(sqrt(color), 1.); // Do Gamma correction.
    }
 </script>
