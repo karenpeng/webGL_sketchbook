@@ -2,7 +2,7 @@
 
 <body bgcolor=black>
 <center>
-<td><canvas id='canvas1' width=400 height=400></canvas></td>
+<td><canvas id='canvas1' width=640 height=640></canvas></td>
 </center>
 </body>
 
@@ -33,11 +33,12 @@
    float raySphere(vec3 V, vec3 W, vec4 S) {
 
       // YOU NEED TO COMPUTE t, BY SETTING UP AND THEN SOLVING A QUADRATIC EQUATION.
-      float b = dot(V, W);
-      float c = dot(V, V) - S.w * S.w;
+      vec3 v = vec3(V - S.xyz);
+      float b = 2. * dot(v, W);
+      float c = dot(v, v) - S.w * S.w;
 
-      if(b * b - c >= 0.){
-         return ( -b - sqrt( b * b - c));
+      if(b * b - 4. * c >= 0.){
+         return ( -b - sqrt( b * b - 4. * c) / 2.);
       }
 
       return 10000.;
@@ -51,14 +52,16 @@
    vec3 shadeSphere(vec3 point, vec4 sphere, vec3 material) {
       vec3 color = vec3(0.,0.,0.);
 
-      // YOU NEED TO COMPUTE COLOR FOR A DIFFUSELY SHADED SPHERE.
-      vec3 diffuse = vec3(.5, .5, .8);
+      //NORMAL
       vec3 normal = ( point - sphere.xyz ) / sphere.w;
+
+      // YOU NEED TO COMPUTE COLOR FOR A DIFFUSELY SHADED SPHERE.
 
       // FOR THE AMBIENT COMPONENT OF THE DIFFUSE SHADING, YOU CAN
       // USE A SIMPLE APPROXIMATION SUCH AS: ambient = material / 5.;
       vec3 ambient = material / 5.;
-      color = ambient + Lrgb * diffuse * max(0., dot(normal, Ldir));
+      vec3 diffuse = vec3(1., 1., 1.);
+      color = ambient + Lrgb * diffuse * max(0., dot(normal, -Ldir));
 
       return color;
    }
@@ -73,9 +76,15 @@
       // USING vPosition.x AND vPosition.y.
 
       vec3 V, W;
-      V = vec3(0., 0., .5);
-      vec3 D = vec3(vPosition.x, vPosition.y, .5);
-      W = D/ sqrt( dot(D, D));
+
+      //haha fl is very interesting!!!!
+      float fl = .5;
+
+      V = vec3(0., 0., fl);
+      vec3 D = vec3(vPosition.x, vPosition.y, fl);
+      //this is the same as
+      //W = D/ sqrt( dot(D, D));
+      W = normalize(D);
 
       // YOU NEED TO SET r,g,b FOR material.
       material = vec3(1., 1., 1.);
@@ -90,18 +99,20 @@
       // if (t < 10000.)
       //    color = shadeSphere(V + t * W, sphere, material);
 
-      // gl_FragColor = vec4(sqrt(color), 1.); // Do Gamma correction.
-
       // But have error with multiple spheres:
       vec4 spheres[3]; // Note that I am explicitly setting the size of the array.
+      spheres[0] = vec4(c.x, c.y, 0., 0.3);
+      spheres[1] = vec4(-0.2, -0.2, -0.2, sin(uTime * .5) * .5);
+      spheres[2] = vec4(0., 0., 0., 0.3);
+
       for (int i = 0 ; i < 3 ; i++) { // and also the size of the loop.
-         float j = 0.;
-         sphere[i] = vec4(0., sin(uTime + j), 0., cos(uTime));
-         float t = raySphere(V, W, sphere[i]);
+         //float j = -0.6;
+         //spheres[i] = vec4(j, j, 0., .2);
+         float t = raySphere(V, W, spheres[i]);
          if (t < 10000.){
-            color = shadeSphere(V + t * W, sphere[i], material);
+            color = shadeSphere(V + t * W, spheres[i], material);
          }
-         j += 1.;
+         //j += .3;
       }
       gl_FragColor = vec4(sqrt(color), 1.); // Do Gamma correction.
    }
