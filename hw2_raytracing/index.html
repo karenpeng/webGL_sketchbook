@@ -1,8 +1,15 @@
+<style type="text/css">
+   div{
+      color: #aaa;
+   }
+</style>
 <script src=lib1.js></script>
 
 <body bgcolor=black>
 <center>
+   <div>Egg Family</div>
 <td><canvas id='canvas1' width=640 height=640></canvas></td>
+<div>Question: why do the other two sphere(xyz is not in the center 0., 0., 0.) get distorted?</div>
 </center>
 </body>
 
@@ -41,7 +48,7 @@
          return ( -b - sqrt( b * b - 4. * c) / 2.);
       }
 
-      return 10000.;
+      return 100000.;
    }
 
    // Diffusely shade a sphere.
@@ -109,7 +116,7 @@
          //float j = -0.6;
          //spheres[i] = vec4(j, j, 0., .2);
          float t = raySphere(V, W, spheres[i]);
-         if (t < 10000.){
+         if (t < 100000.){
             color = shadeSphere(V + t * W, spheres[i], material);
          }
          //j += .3;
