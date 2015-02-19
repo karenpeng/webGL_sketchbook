@@ -66,9 +66,9 @@
 
       // FOR THE AMBIENT COMPONENT OF THE DIFFUSE SHADING, YOU CAN
       // USE A SIMPLE APPROXIMATION SUCH AS: ambient = material / 5.;
-      vec3 ambient = material / 5.;
+      vec3 ambient = material / 2.;
       vec3 diffuse = vec3(1., 1., 1.);
-      color = ambient + Lrgb * diffuse * max(0., dot(normal, -Ldir));
+      color = ambient + Lrgb * diffuse * max(0., pow(dot(normal, Ldir),10.));
 
       return color;
    }
@@ -85,7 +85,7 @@
       vec3 V, W;
 
       //haha fl is very interesting!!!!
-      float fl = .5;
+      float fl = 2.;
 
       V = vec3(0., 0., fl);
       vec3 D = vec3(vPosition.x, vPosition.y, fl);
@@ -94,7 +94,7 @@
       W = normalize(D);
 
       // YOU NEED TO SET r,g,b FOR material.
-      material = vec3(1., 1., 1.);
+      material = vec3(1., 1., 0.2);
 
       vec3 color = vec3(0., 0., 0.);
 
@@ -107,10 +107,11 @@
       //    color = shadeSphere(V + t * W, sphere, material);
 
       // But have error with multiple spheres:
-      vec4 spheres[3]; // Note that I am explicitly setting the size of the array.
+      vec4 spheres[4]; // Note that I am explicitly setting the size of the array.
       spheres[0] = vec4(c.x, c.y, 0., 0.3);
-      spheres[1] = vec4(-0.2, -0.2, -0.2, sin(uTime * .5) * .5);
+      spheres[1] = vec4(-0.2, -0.2, 0.2, sin(uTime * .5) * .5);
       spheres[2] = vec4(0., 0., 0., 0.3);
+      spheres[3] = vec4(0., 0., 0., sin(uTime * .5) * .5);
 
       for (int i = 0 ; i < 3 ; i++) { // and also the size of the loop.
          //float j = -0.6;
@@ -123,6 +124,20 @@
       }
       gl_FragColor = vec4(sqrt(color), 1.); // Do Gamma correction.
    }
+
+
+//  mikolalysenko: hughsk: not quite sure what you mean
+// [8:45pm] mikolalysenko: karen_punkpunk: the spheres look weird because your field of view angle is too wide I think
+// [8:45pm] mikolalysenko: karen_punkpunk: you can adjust that by changing the ray distance
+// [8:45pm] mikolalysenko: in your code I think this parameter is called 'fl'
+// [8:46pm] mikolalysenko: if you set that to something like 2.5 or 3 it should look better would be my guess
+// [8:47pm] mikolalysenko: ogd: also I'm gonna be in oakland early march for 2 weeks
+// [8:50pm] mikolalysenko: karen_punkpunk: you can compute the (vertical field of view in this case by taking Math.atan2(1, fl)
+// [8:51pm] mikolalysenko: since if you draw a triangle out along the view frustum, the adajcent leg/base is fl
+// [8:51pm] mikolalysenko: and the vertical leg is just 1
+// [8:51pm] mikolalysenko: or 0.5, depending on how you set up coordinates
+// [8:52pm] mikolalysenko: or you can set fl = 0.5/Math.tan(fov)
+
 </script>
 
 <script>
