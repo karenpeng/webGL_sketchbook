@@ -62,7 +62,7 @@
       // FOR THE AMBIENT COMPONENT OF THE DIFFUSE SHADING, YOU CAN
       // USE A SIMPLE APPROXIMATION SUCH AS: ambient = material / 5.;
       // vec3 ambient = material / 5.;
-      vec3 diffuse = vec3(0.1, .6, .3);
+      vec3 diffuse = vec3(.2, 1., .3);
 
       //vec3 Ldir = normalize(vec3(1., 1., sin(uTime)*5.));
       //color = ambient + diffuse * max(0., dot(normal, Ldir));
@@ -109,7 +109,7 @@
       W = normalize(D);
 
       // YOU NEED TO SET r,g,b FOR material.
-      vec3 material = vec3(.5, .4, .3);
+      vec3 material = vec3(.6, .2, .8);
 
       vec3 color = vec3(0., 0., 0.);
 
@@ -122,18 +122,18 @@
 
       // But have error with multiple spheres:
       vec4 spheres[5]; // Note that I am explicitly setting the size of the array.
-      spheres[0] = vec4(.5, .5, .1 * sin(uTime), .3);
-      spheres[1] = vec4(-.5, -.5, .1 * cos(uTime), .3);
-      spheres[2] = vec4(.5, -.5, 0.1, .3);
-      spheres[3] = vec4(-.5, .5, -0.1, .3);
-      spheres[4] = vec4(0., 0., sin(uTime), .3);
+      spheres[0] = vec4(.5, .5, .3 * sin(uTime) - .1, .3);
+      spheres[1] = vec4(-.5, -.5, .3 * cos(uTime) - .1, .3);
+      spheres[2] = vec4(.5, -.5, .4 * sin(-uTime) -.2, .3);
+      spheres[3] = vec4(-.5, .5, .4 * cos(-uTime) - .2, .3);
+      spheres[4] = vec4(0., 0., .6 * sin(uTime) - .2, .3);
 
       //you can't use spheres[i].length!!!
       float it = 0.;
       for( int i = 0; i < 5 ; i ++){
-         spheres[i].x += sin(uTime ) * .5;
-         spheres[i].y += cos(uTime) * .5;
-         it += 1.;
+         spheres[i].x += sin(uTime + it) * .5;
+         spheres[i].y += cos(uTime + it) * .5;
+         it += .1;
       }
 
       vec3 ambient = material / 5.;
@@ -142,7 +142,6 @@
       float minT = 100000.;
 
       for (int i = 0 ; i < 5 ; i++) { // and also the size of the loop.
-         //float j = -0.6;
          //spheres[i] = vec4(j, j, 0., .2);
          float t = raySphere(V, W, spheres[i]);
          if(t < minT){
@@ -155,7 +154,6 @@
          //    }
          //  color += ambient;
          // }
-         //j += .3;
       }
 
       for(int j = 0; j < 4; j ++){
