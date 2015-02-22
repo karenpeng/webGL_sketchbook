@@ -7,7 +7,6 @@
 
 <body bgcolor=black>
 <center>
-   <div>Egg Family</div>
 <td><canvas id='canvas1' width=640 height=640></canvas></td>
 </center>
 </body>
@@ -123,8 +122,8 @@
 
       // But have error with multiple spheres:
       vec4 spheres[5]; // Note that I am explicitly setting the size of the array.
-      spheres[0] = vec4(.5, .5, 0.1, .3);
-      spheres[1] = vec4(-.5, -.5, -0.1, .3);
+      spheres[0] = vec4(.5, .5, .1 * sin(uTime), .3);
+      spheres[1] = vec4(-.5, -.5, .1 * cos(uTime), .3);
       spheres[2] = vec4(.5, -.5, 0.1, .3);
       spheres[3] = vec4(-.5, .5, -0.1, .3);
       spheres[4] = vec4(0., 0., sin(uTime), .3);
@@ -139,26 +138,31 @@
 
       vec3 ambient = material / 5.;
 
-      // vec4 closestS;
-      // float minT=100000.;
-      //
+      vec4 closestS;
+      float minT = 100000.;
+
       for (int i = 0 ; i < 5 ; i++) { // and also the size of the loop.
          //float j = -0.6;
          //spheres[i] = vec4(j, j, 0., .2);
          float t = raySphere(V, W, spheres[i]);
-         // if(t<minT){
-         //  minT=t;
-         //  closestS=spheres[i];
-         // }
-         if (t < 100000.){
-            for(int j = 0; j < 4; j++){
-              color += shadeSphere(V + t * W, spheres[i], material, Lrgbs[j], Lposs[j]);
-            }
-          color += ambient;
+         if(t < minT){
+           minT = t;
+           closestS = spheres[i];
          }
+         // if (t < 100000.){
+         //    for(int j = 0; j < 4; j++){
+         //      color += shadeSphere(V + t * W, spheres[i], material, Lrgbs[j], Lposs[j]);
+         //    }
+         //  color += ambient;
+         // }
          //j += .3;
       }
-      //closestS
+
+      for(int j = 0; j < 4; j ++){
+        color += shadeSphere(V + minT * W, closestS, material, Lrgbs[j], Lposs[j]);
+        color += ambient;
+      }
+
       gl_FragColor = vec4(sqrt(color), 1.); // Do Gamma correction.
       //gl_FragColor = vec4(color, 1.);
    }
