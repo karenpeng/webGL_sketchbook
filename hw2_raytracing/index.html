@@ -95,7 +95,7 @@
       // YOU NEED TO SET r,g,b FOR material.
       vec3 material = vec3(.6, .2, .8);
 
-      vec3 color = vec3(0., 0., 0.);
+      vec3 color = vec3(vPosition.y * -.02, vPosition.y * -.01, vPosition.y * .05 + .05);
 
       // YOU NEED TO SET x,y,z AND r FOR sphere.
 
@@ -158,13 +158,7 @@
          }
       }
 
-      // for(int j = 0; j < 4; j ++){
-      //   color += shadeSphere(V + minT * W, closestS, material, Lrgbs[j], Lposs[j]);
-      //   color += ambient;
-      // }
-
       gl_FragColor = vec4(sqrt(color), 1.); // Do Gamma correction.
-      //gl_FragColor = vec4(color, 1.);
    }
 
 </script>
