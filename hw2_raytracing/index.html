@@ -51,8 +51,7 @@
    // material is the r,g,b color of the sphere.
 
    vec3 shadeSphere(vec4 point, vec4 sphere, vec3 material, vec3 Lrgb, vec3 Lpos) {
-      vec3 color = vec3(0.,0.,0.);
-      //vec3 Lpos = vec3(1., 1., 5.);
+      vec3 color = vec3(0., 0., 0.);
       //NORMAL
       //vec3 normal = ( point - sphere.xyz ) / sphere.w;
       vec3 normal = normalize(vec3(point.xyz - sphere.xyz));
@@ -77,21 +76,6 @@
 
    void main(void) {
       vec2 c = uCursor.xy;
-
-      vec3 Lrgbs[4];
-      vec3 Lposs[4];
-
-      Lrgbs[0] = vec3(1.,.5,0.);
-      Lposs[0] = vec3(1., 1., -5.);
-
-      Lrgbs[1] = vec3(.1,.2,.6);
-      Lposs[1] = vec3(-1., 1., -5.);
-
-      Lrgbs[2] = vec3(.2, 1., .3);
-      Lposs[2] = vec3(1., 1., -5.);
-
-      Lrgbs[3] = vec3(1., .5, .5);
-      Lposs[3] = vec3(1., -1., -5.);
       //vec3 Ldir = normalize(vec3(c.x, c.y, 1. - 2. * dot(c, c)));
 
       // YOU NEED TO COMPUTE V AND W TO CREATE THE RAY FOR THIS PIXEL,
@@ -122,21 +106,36 @@
 
       // But have error with multiple spheres:
       vec4 spheres[5]; // Note that I am explicitly setting the size of the array.
-      spheres[0] = vec4(.5, .5, .3 * sin(uTime) - .1, .3);
-      spheres[1] = vec4(-.5, -.5, .3 * cos(uTime) - .1, .3);
-      spheres[2] = vec4(.5, -.5, .4 * sin(-uTime) -.2, .3);
-      spheres[3] = vec4(-.5, .5, .4 * cos(-uTime) - .2, .3);
-      spheres[4] = vec4(0., 0., .6 * sin(uTime) - .2, .3);
+      spheres[0] = vec4(.3, .3, .1 * sin(uTime) + .2, .2);
+      spheres[1] = vec4(-.3, -.3, .1 * cos(uTime) + .2, .2);
+      spheres[2] = vec4(.3, -.3, .1 * sin(-uTime) +.2, .2);
+      spheres[3] = vec4(-.3, .3, .1 * cos(-uTime) + .3, .2);
+      spheres[4] = vec4(0., 0., .4 * sin(uTime) + .4, .2);
+
+      vec3 Lrgbs[4];
+      vec3 Lposs[4];
+
+      Lrgbs[0] = vec3(1., .5, 0.);
+      Lposs[0] = vec3(1., 1., -4.4);
+
+      Lrgbs[1] = vec3(0., 0., .5);
+      Lposs[1] = vec3(-1., 1., -5.);
+
+      Lrgbs[2] = vec3(1., 0., 0.);
+      Lposs[2] = vec3(1., 1., -5.);
+
+      Lrgbs[3] = vec3(1., .2, .8);
+      Lposs[3] = vec3(1., -1., -5.);
 
       //you can't use spheres[i].length!!!
       float it = 0.;
       for( int i = 0; i < 5 ; i ++){
          spheres[i].x += sin(uTime + it) * .5;
          spheres[i].y += cos(uTime + it) * .5;
-         it += .1;
+         it += .2;
       }
 
-      vec3 ambient = material / 5.;
+      vec3 ambient = vec3(.02, .02, .02);
 
       vec4 closestS;
       float minT = 100000.;
@@ -144,22 +143,25 @@
       for (int i = 0 ; i < 5 ; i++) { // and also the size of the loop.
          //spheres[i] = vec4(j, j, 0., .2);
          float t = raySphere(V, W, spheres[i]);
-         if(t < minT){
-           minT = t;
-           closestS = spheres[i];
-         }
-         // if (t < 100000.){
-         //    for(int j = 0; j < 4; j++){
-         //      color += shadeSphere(V + t * W, spheres[i], material, Lrgbs[j], Lposs[j]);
-         //    }
-         //  color += ambient;
+         // if(t < minT){
+         //   minT = t;
+         //   closestS = spheres[i];
          // }
+         if (t < 100000.){
+
+            color = ambient;
+
+            for(int j = 0; j < 4; j++){
+              color += shadeSphere(V + t * W, spheres[i], material, Lrgbs[j], Lposs[j]);
+            }
+
+         }
       }
 
-      for(int j = 0; j < 4; j ++){
-        color += shadeSphere(V + minT * W, closestS, material, Lrgbs[j], Lposs[j]);
-        color += ambient;
-      }
+      // for(int j = 0; j < 4; j ++){
+      //   color += shadeSphere(V + minT * W, closestS, material, Lrgbs[j], Lposs[j]);
+      //   color += ambient;
+      // }
 
       gl_FragColor = vec4(sqrt(color), 1.); // Do Gamma correction.
       //gl_FragColor = vec4(color, 1.);
