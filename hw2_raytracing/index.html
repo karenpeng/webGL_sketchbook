@@ -1,5 +1,5 @@
 <style type="text/css">
-   div{
+   h3, p{
       color: #aaa;
    }
 </style>
@@ -7,7 +7,14 @@
 
 <body bgcolor=black>
 <center>
-<td><canvas id='canvas1' width=640 height=640></canvas></td>
+<td>
+  <h3>multiple local lights</h3>
+  <canvas id='canvas1' width=600 height=600></canvas>
+  <canvas id='canvas2' width=600 height=600></canvas>
+</td>
+<p>Left: V and W are vector4 with homogeneous coordinates, Right: V and W are just vector3</p>
+<p>which one should we use?</p>
+<p>And the sphere looks really flat when highlighted, is there a way to avoid that?</p>
 </center>
 </body>
 
@@ -21,6 +28,115 @@
 </script>
 
 <script id='my_fragment_shader' type='x-shader/x-fragment'>
+precision mediump float;
+   uniform float uTime;
+   uniform vec3  uCursor;
+   varying vec3  vPosition;
+   // Compute intersection of a ray with a sphere, if any.  Return t.
+   // If there is no intersection, return 10000.
+   float raySphere(vec4 V, vec4 W, vec4 S) {
+      // YOU NEED TO COMPUTE t, BY SETTING UP AND THEN SOLVING A QUADRATIC EQUATION.
+      vec4 v = vec4(V.xyz - S.xyz, 0.);
+      float b = 2. * dot(v, W);
+      float c = dot(v, v) - S.w * S.w;
+      if(b * b - 4. * c >= 0.){
+         float root = -b - sqrt( b * b - 4. * c) / 2.;
+         if(root >= 0.) return root;
+      }
+      return 100000.;
+   }
+   // Diffusely shade a sphere.
+   // point is the x,y,z position of the surface point.
+   // sphere is the x,y,z,r definition of the sphere.
+   // material is the r,g,b color of the sphere.
+   vec3 shadeSphere(vec4 point, vec4 sphere, vec3 material, vec3 Lrgb, vec3 Lpos) {
+      vec3 color = vec3(0., 0., 0.);
+      //NORMAL
+      //vec3 normal = ( point - sphere.xyz ) / sphere.w;
+      vec3 normal = normalize(vec3(point.xyz - sphere.xyz));
+      // YOU NEED TO COMPUTE COLOR FOR A DIFFUSELY SHADED SPHERE.
+      // FOR THE AMBIENT COMPONENT OF THE DIFFUSE SHADING, YOU CAN
+      // USE A SIMPLE APPROXIMATION SUCH AS: ambient = material / 5.;
+      // vec3 ambient = material / 5.;
+      vec3 diffuse = vec3(.2, 1., .3);
+      //vec3 Ldir = normalize(vec3(1., 1., sin(uTime)*5.));
+      //color = ambient + diffuse * max(0., dot(normal, Ldir));
+      vec3 Ldir = normalize(vec3(Lpos - point.xyz));
+      // vec3 sum = Lrgb * diffuse * max(0., dot(normal, Ldirs[i]))
+      // color = ambient + sum;
+      vec3 sum = Lrgb * diffuse * max(0., dot(normal, Ldir)) + vec3(0., 0., 0.);
+      //color = ambient + sum;
+      return sum;
+      //return color;
+   }
+   void main(void) {
+      vec2 c = uCursor.xy;
+      //vec3 Ldir = normalize(vec3(c.x, c.y, 1. - 2. * dot(c, c)));
+      // YOU NEED TO COMPUTE V AND W TO CREATE THE RAY FOR THIS PIXEL,
+      // USING vPosition.x AND vPosition.y.
+      vec4 V, W;
+      //haha fl is very interesting!!!!
+      float fl = 5.;
+      V = vec4(0., 0., fl, 1.);
+      vec4 D = vec4(vPosition.x, vPosition.y, -fl, 0.);
+      //this is the same as
+      //W = D/ sqrt( dot(D, D));
+      W = normalize(D);
+      // YOU NEED TO SET r,g,b FOR material.
+      vec3 material = vec3(.6, .2, .8);
+      vec3 color = vec3(vPosition.y * -.02, vPosition.y * -.01, vPosition.y * .05 + .05);
+      // YOU NEED TO SET x,y,z AND r FOR sphere.
+      // It works for one sphere:
+      // vec4 sphere = vec4(0., 0., sin(uTime), .3);
+      // float t = raySphere(V, W, sphere);
+      // if (t < 10000.) color = shadeSphere(V + t * W, sphere, material, Lrgb, Lpos);
+      // But have error with multiple spheres:
+      vec4 spheres[5]; // Note that I am explicitly setting the size of the array.
+      spheres[0] = vec4(.3, .3, .08 * sin(uTime) + .06, .3);
+      spheres[1] = vec4(-.3, -.3, .08 * cos(uTime) + .06, .3);
+      spheres[2] = vec4(.3, -.3, .08 * sin(-uTime) +.06, .3);
+      spheres[3] = vec4(-.3, .3, .08 * cos(-uTime) + .06, .3);
+      spheres[4] = vec4(0., 0., .1 * sin(uTime) + .08, .3);
+      vec3 Lrgbs[4];
+      vec3 Lposs[4];
+      Lrgbs[0] = vec3(1., .5, 0.);
+      Lposs[0] = vec3(1., 1., -4.4);
+      Lrgbs[1] = vec3(0., 0., .5);
+      Lposs[1] = vec3(-1., 1., -5.);
+      Lrgbs[2] = vec3(1., 0., 0.);
+      Lposs[2] = vec3(1., 1., -5.);
+      Lrgbs[3] = vec3(1., .2, .8);
+      Lposs[3] = vec3(1., -1., -5.);
+      //you can't use spheres[i].length!!!
+      float it = 0.;
+      for( int i = 0; i < 5 ; i ++){
+         spheres[i].x += sin(uTime + it) * .5;
+         spheres[i].y += cos(uTime + it) * .5;
+         it += .3;
+      }
+      vec3 ambient = vec3(.02, .02, .02);
+      vec4 closestS;
+      float minT = 100000.;
+      for (int i = 0 ; i < 5 ; i++) { // and also the size of the loop.
+         //spheres[i] = vec4(j, j, 0., .2);
+         float t = raySphere(V, W, spheres[i]);
+         // if(t < minT){
+         //   minT = t;
+         //   closestS = spheres[i];
+         // }
+         if (t < 100000.){
+            color = ambient;
+            for(int j = 0; j < 4; j++){
+              color += shadeSphere(V + t * W, spheres[i], material, Lrgbs[j], Lposs[j]);
+            }
+         }
+      }
+      gl_FragColor = vec4(sqrt(color), 1.); // Do Gamma correction.
+   }
+
+</script>
+
+<script id='my_fragment_shader2' type='x-shader/x-fragment'>
 
    precision mediump float;
    uniform float uTime;
@@ -30,10 +146,10 @@
    // Compute intersection of a ray with a sphere, if any.  Return t.
    // If there is no intersection, return 10000.
 
-   float raySphere(vec4 V, vec4 W, vec4 S) {
+   float raySphere(vec3 V, vec3 W, vec4 S) {
 
       // YOU NEED TO COMPUTE t, BY SETTING UP AND THEN SOLVING A QUADRATIC EQUATION.
-      vec4 v = vec4(V.xyz - S.xyz, 0.);
+      vec3 v = vec3(V - S.xyz);
       float b = 2. * dot(v, W);
       float c = dot(v, v) - S.w * S.w;
 
@@ -50,13 +166,11 @@
    // sphere is the x,y,z,r definition of the sphere.
    // material is the r,g,b color of the sphere.
 
-   vec3 shadeSphere(vec4 point, vec4 sphere, vec3 material, vec3 Lrgb, vec3 Lpos) {
+   vec3 shadeSphere(vec3 point, vec4 sphere, vec3 Lrgb, vec3 Lpos, vec3 W) {
       vec3 color = vec3(0., 0., 0.);
       //NORMAL
       //vec3 normal = ( point - sphere.xyz ) / sphere.w;
-      vec3 normal = normalize(vec3(point.xyz - sphere.xyz));
-
-      // YOU NEED TO COMPUTE COLOR FOR A DIFFUSELY SHADED SPHERE.
+      vec3 normal = normalize(vec3(point - sphere.xyz));
 
       // FOR THE AMBIENT COMPONENT OF THE DIFFUSE SHADING, YOU CAN
       // USE A SIMPLE APPROXIMATION SUCH AS: ambient = material / 5.;
@@ -65,10 +179,16 @@
 
       //vec3 Ldir = normalize(vec3(1., 1., sin(uTime)*5.));
       //color = ambient + diffuse * max(0., dot(normal, Ldir));
-      vec3 Ldir = normalize(vec3(Lpos - point.xyz));
+      vec3 Ldir = normalize(vec3(Lpos - point));
       // vec3 sum = Lrgb * diffuse * max(0., dot(normal, Ldirs[i]))
       // color = ambient + sum;
-      vec3 sum = Lrgb * diffuse * max(0., dot(normal, Ldir)) + vec3(0., 0., 0.);
+
+      // relection
+      vec3 reflection = 2. * dot(normal, Ldir) * normal - Ldir;
+
+      float wat = dot(-W, reflection);
+
+      vec3 sum = Lrgb * diffuse * max(0., dot(normal, Ldir)) + Lrgb * max(0., pow(wat, 9.)) + vec3(0., 0., 0.);
       //color = ambient + sum;
       return sum;
       //return color;
@@ -81,13 +201,13 @@
       // YOU NEED TO COMPUTE V AND W TO CREATE THE RAY FOR THIS PIXEL,
       // USING vPosition.x AND vPosition.y.
 
-      vec4 V, W;
+      vec3 V, W;
 
       //haha fl is very interesting!!!!
       float fl = 5.;
 
-      V = vec4(0., 0., fl, 1.);
-      vec4 D = vec4(vPosition.x, vPosition.y, -fl, 0.);
+      V = vec3(0., 0., fl);
+      vec3 D = vec3(vPosition.x, vPosition.y, -fl);
       //this is the same as
       //W = D/ sqrt( dot(D, D));
       W = normalize(D);
@@ -106,25 +226,30 @@
 
       // But have error with multiple spheres:
       vec4 spheres[5]; // Note that I am explicitly setting the size of the array.
-      spheres[0] = vec4(.3, .3, .1 * sin(uTime) + .2, .2);
-      spheres[1] = vec4(-.3, -.3, .1 * cos(uTime) + .2, .2);
-      spheres[2] = vec4(.3, -.3, .1 * sin(-uTime) +.2, .2);
-      spheres[3] = vec4(-.3, .3, .1 * cos(-uTime) + .3, .2);
-      spheres[4] = vec4(0., 0., .4 * sin(uTime) + .4, .2);
+      spheres[0] = vec4(.3, .3, .08 * sin(uTime) + .06, .3);
+      spheres[1] = vec4(-.3, -.3, .08 * cos(uTime) + .06, .3);
+      spheres[2] = vec4(.3, -.3, .08 * sin(-uTime) +.06, .3);
+      spheres[3] = vec4(-.3, .3, .08 * cos(-uTime) + .06, .3);
+      spheres[4] = vec4(0., 0., .1 * sin(uTime) + .08, .3);
 
       vec3 Lrgbs[4];
+      //vec3 Srgbs[4];
       vec3 Lposs[4];
 
       Lrgbs[0] = vec3(1., .5, 0.);
+      //Srgbs[0] = vec3(1., .7, .2);
       Lposs[0] = vec3(1., 1., -4.4);
 
       Lrgbs[1] = vec3(0., 0., .5);
+      //Srgbs[1] = vec3(.2, .2, .7);
       Lposs[1] = vec3(-1., 1., -5.);
 
       Lrgbs[2] = vec3(1., 0., 0.);
+      //Srgbs[2] = vec3(1., .2, .2);
       Lposs[2] = vec3(1., 1., -5.);
 
       Lrgbs[3] = vec3(1., .2, .8);
+      //Srbgs[3] = vec3(1., .4, 1.);
       Lposs[3] = vec3(1., -1., -5.);
 
       //you can't use spheres[i].length!!!
@@ -132,12 +257,11 @@
       for( int i = 0; i < 5 ; i ++){
          spheres[i].x += sin(uTime + it) * .5;
          spheres[i].y += cos(uTime + it) * .5;
-         it += .2;
+         it += .3;
       }
 
       vec3 ambient = vec3(.02, .02, .02);
 
-      vec4 closestS;
       float minT = 100000.;
 
       for (int i = 0 ; i < 5 ; i++) { // and also the size of the loop.
@@ -152,7 +276,7 @@
             color = ambient;
 
             for(int j = 0; j < 4; j++){
-              color += shadeSphere(V + t * W, spheres[i], material, Lrgbs[j], Lposs[j]);
+              color += shadeSphere(V + t * W, spheres[i], Lrgbs[j], Lposs[j],  W);
             }
 
          }
@@ -166,5 +290,7 @@
 <script>
 start_gl('canvas1', document.getElementById('my_vertex_shader'  ).innerHTML,
                     document.getElementById('my_fragment_shader').innerHTML);
+start_gl('canvas2', document.getElementById('my_vertex_shader'  ).innerHTML,
+                    document.getElementById('my_fragment_shader2').innerHTML);
 </script>
 
