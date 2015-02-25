@@ -112,7 +112,7 @@ window.onkeydown = function (e) {
 // Update is called once per animation frame.
 function gl_update(gl) {
   var time = ((new Date()).getTime() - startTime) / 1000;
-  //gl.umiform1i(gl.uSpaceDown, spaceDown); // Set uniform variables
+  gl.umiform1i(gl.uSpaceDown, spaceDown); // Set uniform variables
   gl.uniform1f(gl.uTime, time); // in fragment shader.
   gl.uniform3f(gl.uCursor, gl.cursor.x, gl.cursor.y, gl.cursor.z);
   gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4); // Render the square.
