@@ -1,5 +1,5 @@
 <style type="text/css">
-   div{
+   p{
       color: #aaa;
    }
 </style>
@@ -10,6 +10,7 @@
 <td>
 <canvas id='canvas1' width=400 height=400></canvas>
 <canvas id='canvas2' width=400 height=400></canvas>
+<p>Press space to see with or without intersect</p>
 </td>
 </center>
 </body>
@@ -191,7 +192,7 @@
 precision mediump float;
    uniform float uTime;
    uniform vec3  uCursor;
-   //uniform int uSpaceDown;
+   uniform int uSpaceDown;
    varying vec3  vPosition;
 
    // Compute intersection of a ray with a sphere, if any.  Return t.
@@ -319,8 +320,8 @@ precision mediump float;
 
       // But have error with multiple spheres:
       vec4 spheres[2]; // Note that I am explicitly setting the size of the array.
-      spheres[0] = vec4(0., .3, .06, .3);
-      spheres[1] = vec4(-.2, .4, .06, .3);
+      spheres[0] = vec4(0.,  .3 * cos(uTime), .06 * sin(uTime), .4);
+      spheres[1] = vec4(-.2, .2 * cos(uTime), .06 * sin(uTime), .4);
 
       vec3 Lrgbs[4];
       vec3 Srgbs[4];
@@ -343,14 +344,14 @@ precision mediump float;
       Lposs[3] = vec3(1., -1., -5.);
 
       //you can't use spheres[i].length!!!
-      // float it = 0.;
-      // for( int i = 0; i < 5 ; i ++){
-      //    // spheres[i].x += sin(uTime + it) * .5;
-      //    // spheres[i].y += cos(uTime + it) * .5;
-      //    spheres[i].x += sin(uTime ) * .5;
-      //    spheres[i].y += cos(uTime ) * .5;
-      //    //it += .4;
-      // }
+      float it = 0.;
+      for( int i = 0; i < 2 ; i ++){
+         // spheres[i].x += sin(uTime + it) * .5;
+         // spheres[i].y += cos(uTime + it) * .5;
+         spheres[i].x += sin(uTime + it) * .5;
+         spheres[i].y += cos(uTime + it) * .5;
+         it += .4;
+      }
 
       vec3 ambient = vec3(.02, .02, .02);
 
@@ -361,46 +362,40 @@ precision mediump float;
       for (int i = 0 ; i < 2 ; i++) { // and also the size of the loop.
          tMins[i] = raySphereMin(V, W, spheres[i]);
          tMaxs[i] = raySphereMax(V, W, spheres[i]);
-         //spheres[i] = vec4(j, j, 0., .2);
-         // tMin[0] = raySphereMin(V, W, spheres[0]);
-         // tMax[0] = raySphereMax(V, W, spheres[0]);
 
-         // tMin[1] = raySphereMin(V, W, spheres[1]);
-         // tMax[1] = raySphereMax(V, W, spheres[1]);
-        // if(uSpaceDown == 1){
-        //   float t = raySphere(V, W, spheres[i]);
-        //    if (t < 10000000000.){
-        //       //color = ambient;
-        //       for(int j = 0; j < 4; j++){
-        //         //color += shadeSphere(V + t * W, spheres[i], Lrgbs[j], Lposs[j], Srgbs[j], W);
-        //       }
-        //    }
-        // }
+        if(uSpaceDown == 1){
+          float t = raySphere(V, W, spheres[i]);
+           if (t < 10000000000.){
+              color = ambient;
+              for(int j = 0; j < 4; j++){
+                color += shadeSphere(V + t * W, spheres[i], Lrgbs[j], Lposs[j], Srgbs[j], W);
+              }
+           }
+        }
       }
 
-      if (tMins[0] != tMaxs[0] && tMins[1] != tMaxs[1]){
+      if(uSpaceDown == 0){
+        if (tMins[0] != tMaxs[0] && tMins[1] != tMaxs[1]){
 
-         color = ambient;
+           color = ambient;
 
-         float tmin = max(tMins[0], tMins[1]);
-         //int minIndex = tmin == tMins[0] ? 0 : 1;
-         float tmax = min(tMaxs[0], tMaxs[1]);
-         //int maxIndex = tmax == tMaxs[0] ? 0 : 1;
+           float tmin = max(tMins[0], tMins[1]);
+           float tmax = min(tMaxs[0], tMaxs[1]);
 
-         vec4 minSphere = tmin == tMins[0]? spheres[0] : spheres[1];
-         vec4 maxSphere = tmax == tMaxs[0]? spheres[0] : spheres[1];
+           vec4 minSphere = tmin == tMins[0]? spheres[0] : spheres[1];
+           vec4 maxSphere = tmax == tMaxs[0]? spheres[0] : spheres[1];
 
-         for(int j = 0; j < 4; j++){
-           color += shadeSphere(V + tmin * W, minSphere, Lrgbs[j], Lposs[j], Srgbs[j], W);
-           color += shadeSphere(V + tmax * W, maxSphere, Lrgbs[j], Lposs[j], Srgbs[j], W);
-           // for(int k = 0; k < 5; k++){
-           //     if(k == i) break;
-           //     color += shadowSphere(V + t * W, Lposs[j], spheres[k]);
-           //  }
+           for(int j = 0; j < 4; j++){
+             color += shadeSphere(V + tmin * W, minSphere, Lrgbs[j], Lposs[j], Srgbs[j], W);
+             color += shadeSphere(V + tmax * W, maxSphere, Lrgbs[j], Lposs[j], Srgbs[j], W);
+             // for(int k = 0; k < 5; k++){
+             //     if(k == i) break;
+             //     color += shadowSphere(V + t * W, Lposs[j], spheres[k]);
+             //  }
+
+           }
 
          }
-
-
       }
 
       gl_FragColor = vec4(sqrt(color), 1.); // Do Gamma correction.
