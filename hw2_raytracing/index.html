@@ -49,7 +49,7 @@ precision mediump float;
    // point is the x,y,z position of the surface point.
    // sphere is the x,y,z,r definition of the sphere.
    // material is the r,g,b color of the sphere.
-   vec3 shadeSphere(vec4 point, vec4 sphere, vec3 material, vec3 Lrgb, vec3 Lpos) {
+   vec3 shadeSphere(vec4 point, vec4 sphere, vec3 Lrgb, vec3 Lpos) {
       vec3 color = vec3(0., 0., 0.);
       //NORMAL
       //vec3 normal = ( point - sphere.xyz ) / sphere.w;
@@ -84,7 +84,7 @@ precision mediump float;
       W = normalize(D);
       // YOU NEED TO SET r,g,b FOR material.
       vec3 material = vec3(.6, .2, .8);
-      vec3 color = vec3(vPosition.y * -.02, vPosition.y * -.01, vPosition.y * .05 + .05);
+
       // YOU NEED TO SET x,y,z AND r FOR sphere.
       // It works for one sphere:
       // vec4 sphere = vec4(0., 0., sin(uTime), .3);
@@ -115,22 +115,35 @@ precision mediump float;
          it += .3;
       }
       vec3 ambient = vec3(.02, .02, .02);
-      vec4 closestS;
-      float minT = 100000.;
+
+
+      float minT = 10000000000.;
+      int closetSphereIndex;
+      vec4 closetSphere;
+
+      vec3 color = vec3(vPosition.y * -.02, vPosition.y * -.01, vPosition.y * .05 + .05);
+
       for (int i = 0 ; i < 5 ; i++) { // and also the size of the loop.
          //spheres[i] = vec4(j, j, 0., .2);
          float t = raySphere(V, W, spheres[i]);
-         // if(t < minT){
-         //   minT = t;
-         //   closestS = spheres[i];
-         // }
-         if (t < 100000.){
-            color = ambient;
-            for(int j = 0; j < 4; j++){
-              color += shadeSphere(V + t * W, spheres[i], material, Lrgbs[j], Lposs[j]);
-            }
-         }
+
+         if(t < minT) {
+          minT = t;
+          closetSphereIndex = i;
+          closetSphere = spheres[i];
+        }
+
       }
+
+     if (minT < 100000.){
+
+        color = ambient;
+
+        for(int j = 0; j < 4; j++){
+          color += shadeSphere(V + minT * W, closetSphere, Lrgbs[j], Lposs[j]);
+
+        }
+     }
       gl_FragColor = vec4(sqrt(color), 1.); // Do Gamma correction.
    }
 
@@ -262,25 +275,31 @@ precision mediump float;
 
       vec3 ambient = vec3(.02, .02, .02);
 
-      float minT = 100000.;
+      float minT = 10000000000.;
+      int closetSphereIndex;
+      vec4 closetSphere;
 
       for (int i = 0 ; i < 5 ; i++) { // and also the size of the loop.
          //spheres[i] = vec4(j, j, 0., .2);
          float t = raySphere(V, W, spheres[i]);
-         // if(t < minT){
-         //   minT = t;
-         //   closestS = spheres[i];
-         // }
-         if (t < 100000.){
 
-            color = ambient;
+         if(t < minT) {
+          minT = t;
+          closetSphereIndex = i;
+          closetSphere = spheres[i];
+        }
 
-            for(int j = 0; j < 4; j++){
-              color += shadeSphere(V + t * W, spheres[i], Lrgbs[j], Lposs[j],  W);
-            }
-
-         }
       }
+
+     if (minT < 100000.){
+
+        color = ambient;
+
+        for(int j = 0; j < 4; j++){
+          color += shadeSphere(V + minT * W, closetSphere, Lrgbs[j], Lposs[j], W);
+
+        }
+     }
 
       gl_FragColor = vec4(sqrt(color), 1.); // Do Gamma correction.
    }

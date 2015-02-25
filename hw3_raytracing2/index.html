@@ -39,7 +39,7 @@
       // YOU NEED TO COMPUTE t, BY SETTING UP AND THEN SOLVING A QUADRATIC EQUATION.
       // (x - S.x)^2 + (y - S.y)^2 + (z - S.z)^2 = S.w ^ 2;
       // ((V + t * w).x - S.x)^2 + ((V + t * w).y - S.y) ^2 ...
-      //
+
       vec3 v = vec3(V - S.xyz);
       float b = 2. * dot(v, W);
       float c = dot(v, v) - S.w * S.w;
@@ -60,31 +60,18 @@
    vec3 shadeSphere(vec3 point, vec4 sphere, vec3 Lrgb, vec3 Lpos, vec3 Srgb, vec3 W) {
       vec3 color = vec3(0., 0., 0.);
       //NORMAL
-      //vec3 normal = ( point - sphere.xyz ) / sphere.w;
       vec3 normal = normalize(vec3(point - sphere.xyz));
 
-      // FOR THE AMBIENT COMPONENT OF THE DIFFUSE SHADING, YOU CAN
-      // USE A SIMPLE APPROXIMATION SUCH AS: ambient = material / 5.;
-      // vec3 ambient = material / 5.;
       vec3 diffuse = vec3(.2, 1., .3);
 
-      //vec3 Ldir = normalize(vec3(1., 1., sin(uTime)*5.));
-      //color = ambient + diffuse * max(0., dot(normal, Ldir));
       vec3 Ldir = normalize(vec3(Lpos - point));
-      // vec2 c = uCursor.xy;
-      // Ldir = normalize(vec3(c.x, c.y, 1. + 2. * dot(c, c)));
-      //vec3 Ldir = normalize(Lpos);
-      // vec3 sum = Lrgb * diffuse * max(0., dot(normal, Ldirs[i]))
-      // color = ambient + sum;
 
       // relection
       vec3 reflection = 2. * dot(normal, Ldir) * normal - Ldir;
 
       vec3 sum = Lrgb * diffuse * max(0., dot(normal, Ldir)) + Srgb * max(0., pow(dot(-W, reflection), 19.)) + vec3(0., 0., 0.);
-      //color = ambient + sum;
-      //vec3 sum = Srgb * max(0., pow(dot(-W, reflection), 19.)) + vec3(0., 0., 0.);
+
       return sum;
-      //return color;
    }
 
    vec3 shadowSphere(vec3 point, vec3 Lpos, vec4 sphere){
@@ -98,10 +85,6 @@
 
    void main(void) {
       vec2 c = uCursor.xy;
-      //vec3 Ldir = normalize(vec3(c.x, c.y, 1. - 2. * dot(c, c)));
-
-      // YOU NEED TO COMPUTE V AND W TO CREATE THE RAY FOR THIS PIXEL,
-      // USING vPosition.x AND vPosition.y.
 
       vec3 V, W;
 
@@ -111,18 +94,10 @@
       V = vec3(0., 0., fl);
       W = normalize(vec3(vPosition.x, vPosition.y, -fl));
 
-
       // YOU NEED TO SET r,g,b FOR material.
       vec3 material = vec3(.6, .2, .8);
 
       vec3 color = vec3(vPosition.y * -.02, vPosition.y * -.01, vPosition.y * .05 + .05);
-
-      // YOU NEED TO SET x,y,z AND r FOR sphere.
-
-      // It works for one sphere:
-      // vec4 sphere = vec4(0., 0., sin(uTime), .3);
-      // float t = raySphere(V, W, sphere);
-      // if (t < 10000.) color = shadeSphere(V + t * W, sphere, material, Lrgb, Lpos);
 
       // But have error with multiple spheres:
       vec4 spheres[5]; // Note that I am explicitly setting the size of the array.
@@ -162,27 +137,37 @@
 
       vec3 ambient = vec3(.02, .02, .02);
 
+      float minT = 10000000000.;
+      int closetSphereIndex;
+      vec4 closetSphere;
+
       for (int i = 0 ; i < 5 ; i++) { // and also the size of the loop.
          //spheres[i] = vec4(j, j, 0., .2);
          float t = raySphere(V, W, spheres[i]);
 
-         if (t < 10000000000.){
+         if(t < minT) {
+          minT = t;
+          closetSphereIndex = i;
+          closetSphere = spheres[i];
+        }
 
-            color = ambient;
-
-            for(int j = 0; j < 4; j++){
-              color += shadeSphere(V + t * W, spheres[i], Lrgbs[j], Lposs[j], Srgbs[j], W);
-
-              for(int k = 0; k < 5; k++){
-                  if(k == i) break;
-                  color += shadowSphere(V + t * W, Lposs[j], spheres[k]);
-               }
-
-            }
-
-
-         }
       }
+
+     if (minT < 10000000000.){
+
+        color = ambient;
+
+        for(int j = 0; j < 4; j++){
+          color += shadeSphere(V + minT * W, closetSphere, Lrgbs[j], Lposs[j], Srgbs[j], W);
+
+          for(int k = 0; k < 5; k++){
+              if(k == closetSphereIndex) break;
+              color += shadowSphere(V + minT * W, Lposs[j], spheres[k]);
+           }
+
+        }
+     }
+      //}
 
       gl_FragColor = vec4(sqrt(color), 1.); // Do Gamma correction.
    }
@@ -313,11 +298,6 @@ precision mediump float;
 
       // YOU NEED TO SET x,y,z AND r FOR sphere.
 
-      // It works for one sphere:
-      // vec4 sphere = vec4(0., 0., sin(uTime), .3);
-      // float t = raySphere(V, W, sphere);
-      // if (t < 10000.) color = shadeSphere(V + t * W, sphere, material, Lrgb, Lpos);
-
       // But have error with multiple spheres:
       vec4 spheres[2]; // Note that I am explicitly setting the size of the array.
       spheres[0] = vec4(0.,  .3 * cos(uTime), .06 * sin(uTime), .4);
@@ -346,8 +326,6 @@ precision mediump float;
       //you can't use spheres[i].length!!!
       float it = 0.;
       for( int i = 0; i < 2 ; i ++){
-         // spheres[i].x += sin(uTime + it) * .5;
-         // spheres[i].y += cos(uTime + it) * .5;
          spheres[i].x += sin(uTime + it) * .5;
          spheres[i].y += cos(uTime + it) * .5;
          it += .4;
@@ -355,26 +333,43 @@ precision mediump float;
 
       vec3 ambient = vec3(.02, .02, .02);
 
-      float tMins[2];
-      float tMaxs[2];
+      if(uSpaceDown == 1){
 
+        float minT = 10000000000.;
+        int closetSphereIndex;
+        vec4 closetSphere;
 
-      for (int i = 0 ; i < 2 ; i++) { // and also the size of the loop.
-         tMins[i] = raySphereMin(V, W, spheres[i]);
-         tMaxs[i] = raySphereMax(V, W, spheres[i]);
+        for(int i = 0; i < 2; i++){
 
-        if(uSpaceDown == 1){
           float t = raySphere(V, W, spheres[i]);
-           if (t < 10000000000.){
-              color = ambient;
-              for(int j = 0; j < 4; j++){
-                color += shadeSphere(V + t * W, spheres[i], Lrgbs[j], Lposs[j], Srgbs[j], W);
-              }
-           }
+
+          if(t < minT) {
+            minT = t;
+            closetSphereIndex = i;
+            closetSphere = spheres[i];
+          }
+        }
+
+        if (minT < 100000.){
+
+          color = ambient;
+
+          for(int j = 0; j < 4; j++){
+            color += shadeSphere(V + minT * W, closetSphere, Lrgbs[j], Lposs[j], Srgbs[j], W);
+          }
         }
       }
 
       if(uSpaceDown == 0){
+
+        float tMins[2];
+        float tMaxs[2];
+
+        for (int i = 0 ; i < 2 ; i++) { // and also the size of the loop.
+           tMins[i] = raySphereMin(V, W, spheres[i]);
+           tMaxs[i] = raySphereMax(V, W, spheres[i]);
+         }
+
         if (tMins[0] != tMaxs[0] && tMins[1] != tMaxs[1]){
 
            color = ambient;
@@ -388,11 +383,6 @@ precision mediump float;
            for(int j = 0; j < 4; j++){
              color += shadeSphere(V + tmin * W, minSphere, Lrgbs[j], Lposs[j], Srgbs[j], W);
              color += shadeSphere(V + tmax * W, maxSphere, Lrgbs[j], Lposs[j], Srgbs[j], W);
-             // for(int k = 0; k < 5; k++){
-             //     if(k == i) break;
-             //     color += shadowSphere(V + t * W, Lposs[j], spheres[k]);
-             //  }
-
            }
 
          }
