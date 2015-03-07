@@ -69,7 +69,8 @@
    }
 
    vec3 shadowSphere(vec3 point, vec3 Lpos, vec4 sphere){
-      vec3 _V = vec3(point + vec3(.0000000000001, .0000000000001, .0000000000001));
+      vec3 normal = normalize(vec3(point - sphere.xyz));
+      vec3 _V = vec3(point + 000000000000.1 * normal);
       vec3 _W = normalize(vec3(Lpos - _V));
       if(raySphere(_V, _W, sphere) < 10000000000.){
          return vec3(1., 1., 1.);
@@ -83,7 +84,7 @@
       vec3 V, W;
 
       //haha fl is very interesting!!!!
-      float fl = 5.;
+      float fl = 15.;
 
       V = vec3(0., 0., fl);
       W = normalize(vec3(vPosition.x, vPosition.y, -fl));
@@ -261,7 +262,8 @@ precision mediump float;
    }
 
    vec3 shadowSphere(vec3 point, vec3 Lpos, vec4 sphere){
-      vec3 _V = vec3(point + vec3(.0000000000001, .0000000000001, .0000000000001));
+      vec3 normal = normalize(vec3(point - sphere.xyz));
+      vec3 _V = vec3(point + 000000000000.1 * normal);
       vec3 _W = normalize(vec3(Lpos - _V));
       if(raySphere(_V, _W, sphere) < 10000000000.){
          return vec3(1., 1., 1.);
@@ -279,7 +281,7 @@ precision mediump float;
       vec3 V, W;
 
       //haha fl is very interesting!!!!
-      float fl = 5.;
+      float fl = 15.;
 
       V = vec3(0., 0., fl);
       W = normalize(vec3(vPosition.x, vPosition.y, -fl));
