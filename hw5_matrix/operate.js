@@ -5,8 +5,10 @@ module.exports.multiply = multiply
 module.exports.dot = dot
 
 function multiply(mat4, something) {
-  if (something[4]) {
+  //console.log(something)
+  if (something[4] !== undefined) {
     //something is a matrix
+    //console.log('!')
     var aMat4 = mat4;
     var bMat4 = something;
     var out = Mat4(
@@ -49,7 +51,7 @@ function multiply(mat4, something) {
 }
 
 function dot(aVec4, something) {
-  if (something[3]) {
+  if (something[3] !== undefined) {
     //something is a vec4
     var bVec4 = something
     return aVec4[0] * bVec4[0] + aVec4[1] * bVec4[1] + aVec4[2] * bVec4[2] + aVec4[3] * bVec4[3]
