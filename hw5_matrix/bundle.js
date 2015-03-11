@@ -3972,7 +3972,7 @@ function render() {
   var projectionMatrix = Mat4.perspective(FOV, ASPECT, NEAR, FAR)
   var mat4 = Mat4()
     //console.log(mat4[4])
-  console.log(rotateXM)
+    //console.log(rotateXM)
   mat4 = operate.multiply(mat4, rotateXM)
   mat4 = operate.multiply(mat4, rotateYM)
   mat4 = operate.multiply(mat4, rotateZM)
@@ -4018,34 +4018,51 @@ function render() {
     // context.stroke()
 
     context.beginPath();
+    //context.strokeStyle = "rgb(" + i + "," + i + "," + i ")";
+    context.strokeStyle = 'red'
     context.moveTo(w / 2 + w / 4 * a[0], h / 2 - w / 4 * a[1]);
     context.lineTo(w / 2 + w / 4 * b[0], h / 2 - w / 4 * b[1]);
     context.stroke();
   }
 
+  var mat4 = Mat4()
+    //console.log(mat4[4])
+    //console.log(rotateXM)
+  var rotateXM = Mat4.rotateX(y)
+
+  var rotateYM = Mat4.rotateY(x)
+
+  var rotateZM = Mat4.rotateZ(y)
+
+  var scaleM = Mat4.scale(x, x, 1)
+  mat4 = operate.multiply(mat4, rotateXM)
+  mat4 = operate.multiply(mat4, rotateYM)
+  mat4 = operate.multiply(mat4, rotateZM)
+  mat4 = operate.multiply(mat4, scaleM)
+
   //console.log(oo[0])
-  // for (var j = 0; j < ood.length; j++) {
+  for (var j = 0; j < ood.length; j++) {
 
-  //   var p0 = operate.multiply(Mat4.inverse(eyeMatrix), operate.multiply(transformMatrix, oo[ood[i][0]]))
-  //   var p1 = operate.multiply(Mat4.inverse(eyeMatrix), operate.multiply(transformMatrix, oo[ood[i][1]]))
-  //   console.log(ood[i][0])
-  //     // var p0 = operate.multiply(Mat4.inverse(eyeMatrix), oo[ood[i][0]])
-  //     // var p1 = operate.multiply(Mat4.inverse(eyeMatrix), oo[ood[i][1]])
-  //     //console.log(p0)
-  //   var a = depthPerspective(p0)
-  //   var b = depthPerspective(p1)
+    var p0 = operate.multiply(Mat4.inverse(eyeMatrix), operate.multiply(mat4, oo[ood[j][0]]))
+    var p1 = operate.multiply(Mat4.inverse(eyeMatrix), operate.multiply(mat4, oo[ood[j][1]]))
+      // var p0 = operate.multiply(Mat4.inverse(eyeMatrix), oo[ood[i][0]])
+      // var p1 = operate.multiply(Mat4.inverse(eyeMatrix), oo[ood[i][1]])
+      //console.log(p0)
+    var a = depthPerspective(p0)
+    var b = depthPerspective(p1)
 
-  //   context.beginPath();
-  //   context.fillText(i, w / 2 + w / 4 * a[0], h / 2 - w / 4 * a[1])
-  //   context.moveTo(w / 2 + w / 4 * a[0], h / 2 - w / 4 * a[1]);
-  //   context.lineTo(w / 2 + w / 4 * b[0], h / 2 - w / 4 * b[1]);
-  //   context.stroke();
-  // }
+    context.beginPath();
+    //context.fillText(i, w / 2 + w / 4 * a[0], h / 2 - w / 4 * a[1])
+    context.strokeStyle = 'green'
+    context.moveTo(w / 2 + w / 4 * a[0], h / 2 - w / 4 * a[1]);
+    context.lineTo(w / 2 + w / 4 * b[0], h / 2 - w / 4 * b[1]);
+    context.stroke();
+  }
 
   // for (var i = 0; i < oo.length - 1; i++) {
-  //   var p = operate.multiply(Mat4.inverse(eyeMatrix), operate.multiply(transformMatrix, oo[i]))
+  //   var p = operate.multiply(Mat4.inverse(eyeMatrix), operate.multiply(mat4, oo[i]))
   //   var a = depthPerspective(p)
-  //   var p1 = operate.multiply(Mat4.inverse(eyeMatrix), operate.multiply(transformMatrix, oo[i + 1]))
+  //   var p1 = operate.multiply(Mat4.inverse(eyeMatrix), operate.multiply(mat4, oo[i + 1]))
   //   var a1 = depthPerspective(p1)
   //   context.beginPath()
   //   context.lineWidth = "2";
