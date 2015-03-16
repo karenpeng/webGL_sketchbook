@@ -8,13 +8,33 @@
 <body bgcolor=black>
 <center>
 <td>
-  <h3>multiple local lights</h3>
   <canvas id='canvas' width='600' height='600'></canvas>
 </td>
 </center>
 </body>
 
 <script id='my_vertex_shader' type='x-shader/x-vertex'>
+  attribute vec3 aPosition;
+  varying   vec3 vPosition;
+
+   void main() {
+      gl_Position = vec4(aPosition, 1.0);
+      vPosition = aPosition;
+   }
+</script>
+
+<script id='my_fragment_shader' type='x-shader/x-fragment'>
+  precision mediump float;
+  uniform float uTime;
+  uniform vec3  uCursor;
+  varying vec3  vPosition;
+
+  vec3 mod289(vec3 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
+  vec4 mod289(vec4 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
+  vec4 permute(vec4 x) { return mod289(((x*34.0)+1.0)*x); }
+  vec4 taylorInvSqrt(vec4 r) { return 1.79284291400159 - 0.85373472095314 * r; }
+  vec3 fade(vec3 t) { return t*t*t*(t*(t*6.0-15.0)+10.0); }
+
   float noise(vec3 P) {
      vec3 i0 = mod289(floor(P)), i1 = mod289(i0 + vec3(1.0));
      vec3 f0 = fract(P), f1 = f0 - vec3(1.0), f = fade(f0);
@@ -43,92 +63,11 @@
      return 2.2 * mix(mix(nz.x,nz.z,f.y), mix(nz.y,nz.w,f.y), f.x);
   }
 
-  attribute vec3 aPosition;
-  varying   vec3 vPosition;
-  varying vec2 vUv;
-  varying vec3 vReflect;
-  varying float ao;
-  uniform float weight;
-  varying float d;
+   void main(void) {
+    vec3 color = vec3(noise(vec3(vPosition.x, 0., 0.)), noise(vec3(vPosition.y, 0., 0.)), noise(vec3(0. ,0.,0.)));
 
-  float stripes(float x, float f){
-    float PI = 3.14159265358979323846264;
-    float t = .5 + .5 *sin(f * 2. * PI * x);
-    return t * t - .5;
-  }
-
-  float turbulence(vec3 p){
-    float w = 100.;
-    float t = -.5;
-    for(float f = 1.; f<= 10.; f++){
-      float power = pow(2., f);
-      t += abs(noise(vec3(power * p), vec3(10., 10., 10.)) / power);
-    }
-    return t;
-  }
-
-   void main() {
-      gl_Position = vec4(aPosition, 1.0);
-      vPosition = aPosition;
+    gl_FragColor = vec4(sqrt(color), 1.); // Do Gamma correction.
    }
-</script>
-
-<script id='my_fragment_shader' type='x-shader/x-fragment'>
-  precision mediump float;
-  uniform float uTime;
-  uniform vec3  uCursor;
-  varying vec3  vPosition;
-
-  vec3 mod289(vec3 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
-  vec4 mod289(vec4 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
-  vec4 permute(vec4 x) { return mod289(((x*34.0)+1.0)*x); }
-  vec4 taylorInvSqrt(vec4 r) { return 1.79284291400159 - 0.85373472095314 * r; }
-  vec3 fade(vec3 t) { return t*t*t*(t*(t*6.0-15.0)+10.0); }
-
-
-
-  // float sphere(vec3 p, vec4 spr){
-  //   return length(spr.xyz - p) - spr.w;
-  // }
-
-  // float flame(vec3 p){
-  //   float d = sphere(p * vec3(1., .5, 1.), vec4(.0, -1., .0, 1.));
-  //   return d + (noise(p + vec3(.0, uTime * 1000., 0.)) + noise(p * 3.)* .5)*.25*(p.y);
-  // }
-
-  // float scene(vec3 p){
-  //   return min(100. - length(p), abs(flame(p)));
-  // }
-
-  // vec4 raymarch(vec3 org, vec3 dir){
-  //   float d = 0., glow = 0., eps = 0.02;
-  //   vec3 p = org;
-  //   bool glowed = false;
-  //   for(int i = 0; i<64; i++){
-  //     d = scene(p) + eps;
-  //     p+= d* dir;
-  //     if(d > eps){
-  //       if(flame(p) < 0.) glowed = true;
-  //       if(glowed) glow = float(i) / 64.;
-  //     }
-  //   }
-  //   return vec4(p, glow);
-  // }
-
-
-  //  void main(void) {
-  //   vec4 color = vec4(0., 0., 0., 0.);
-  //   vec3 org = vec3(0., -2., 4.);
-  //   vec3 dir = normalize(vec3(vPosition.x*1.6, -vPosition.y, -1.5));
-
-  //   vec4 p = raymarch(org, dir);
-  //   float glow = p.w;
-
-  //   vec4 col = mix(vec4(1.,.5,.1,1.), vec4(0.1,.5,1.,1.), p.y*.02+.4);
-
-  //   gl_FragColor = mix(vec4(0.), col, pow(glow*2.,4.));
-  //   //gl_FragColor = vec4(sqrt(color), 1.); // Do Gamma correction.
-  //  }
 
 
 </script>

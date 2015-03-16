@@ -156,14 +156,10 @@ precision mediump float;
    uniform vec3  uCursor;
    varying vec3  vPosition;
 
-   // Compute intersection of a ray with a sphere, if any.  Return t.
-   // If there is no intersection, return 10000.
-
    float raySphere(vec3 V, vec3 W, vec4 S) {
 
-      // YOU NEED TO COMPUTE t, BY SETTING UP AND THEN SOLVING A QUADRATIC EQUATION.
       vec3 v = vec3(V - S.xyz);
-      float b = 2. * dot(v, W);
+      float b = 2. * dot(W, v);
       float c = dot(v, v) - S.w * S.w;
 
       if(b * b - 4. * c >= 0.){
@@ -174,30 +170,15 @@ precision mediump float;
       return 100000.;
    }
 
-   // Diffusely shade a sphere.
-   // point is the x,y,z position of the surface point.
-   // sphere is the x,y,z,r definition of the sphere.
-   // material is the r,g,b color of the sphere.
-
    vec3 shadeSphere(vec3 point, vec4 sphere, vec3 Lrgb, vec3 Lpos, vec3 W) {
-      vec3 color = vec3(0., 0., 0.);
-      //NORMAL
-      //vec3 normal = ( point - sphere.xyz ) / sphere.w;
-      vec3 normal = normalize(vec3(point - sphere.xyz));
 
-      // FOR THE AMBIENT COMPONENT OF THE DIFFUSE SHADING, YOU CAN
-      // USE A SIMPLE APPROXIMATION SUCH AS: ambient = material / 5.;
-      // vec3 ambient = material / 5.;
+      vec3 normal = normalize(vec3(point - sphere.xyz));
       vec3 diffuse = vec3(.2, 1., .3);
 
-      //vec3 Ldir = normalize(vec3(1., 1., sin(uTime)*5.));
-      //color = ambient + diffuse * max(0., dot(normal, Ldir));
       vec3 Ldir = normalize(vec3(Lpos - point));
-      // vec3 sum = Lrgb * diffuse * max(0., dot(normal, Ldirs[i]))
-      // color = ambient + sum;
-
       // relection
       vec3 reflection = 2. * dot(normal, Ldir) * normal - Ldir;
+      if(dot(normal, Ldir)< 0.0) reflection = vec3 (0.,0.,0.);
 
       float wat = dot(-W, reflection);
 
