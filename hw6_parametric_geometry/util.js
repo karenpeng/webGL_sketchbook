@@ -1,0 +1,112 @@
+module.exports = {
+
+  renderTriangle: function (tri, gl, color) {
+
+    var a = gl.drawPoint(tri[0].concat(1));
+    var b = gl.drawPoint(tri[1].concat(1));
+    var c = gl.drawPoint(tri[2].concat(1));
+    //console.log(gl)
+    //console.log(a)
+
+    // IF THE TRIANGLE IS BACKWARD FACING, DON'T RENDER IT.
+    var area = this.computeArea([a, b, c]);
+    if (area <= 0)
+      return;
+
+    this.drawCurve([a, b, c, a], gl, color);
+  },
+  // DRAW A CURVE ON THE 2D CANVAS.
+  drawCurve: function (C, gl, color) {
+    //console.log(gl)
+    gl.context.beginPath();
+    gl.context.strokeStyle = color;
+    //console.log(color)
+    for (var i = 0; i < C.length; i++)
+      if (i == 0) {
+        //console.log(C[i])
+        gl.context.moveTo(C[i][0], C[i][1]);
+      } else {
+        //console.log(C[i])
+        gl.context.lineTo(C[i][0], C[i][1]);
+      }
+    gl.context.stroke();
+  },
+
+  computeArea: function (P) {
+    var area = 0;
+    for (var i = 0; i < P.length; i++) {
+      var j = (i + 1) % P.length;
+      var a = P[i];
+      var b = P[j];
+      area += (a[0] - b[0]) * (a[1] + b[1]);
+    }
+    return area / 2;
+  },
+
+  // subdivide: function (tri, nLevels) {
+  //   var a = tri[0];
+  //   var b = tri[1];
+  //   var c = tri[2];
+
+  //   if (--nLevels == 0) {
+  //     this.renderTriangle([this.inflate(a), this.inflate(b), this.inflate(c)]);
+  //     return;
+  //   }
+
+  //   var d = this.midpoint(a, b);
+  //   var e = this.midpoint(b, c);
+  //   var f = this.midpoint(c, a);
+
+  //   this.subdivide([a, d, f], nLevels);
+  //   this.subdivide([b, d, e], nLevels);
+  //   this.subdivide([c, e, f], nLevels);
+  //   this.subdivide([d, e, f], nLevels);
+  // },
+  //    // INFLATE THE SHAPE.
+  //  inflate: function (p) {
+  //    var x = p[0],
+  //      y = p[1],
+  //      z = p[2];
+  //    var r = Math.sqrt(x * x + y * y + z * z);
+  //    return [p[0] / r, p[1] / r, p[2] / r];
+  //  },
+
+  //  midpoint: function(a,b){
+  //   return [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2, (a[2] + b[2]) / 2];
+  //  }
+
+  renderFaces: function (faces, gl, color) {
+    //console.log(faces)
+    for (var i = 0; i < faces.length; i++) {
+      this.renderTriangle(faces[i], gl, color);
+    }
+  },
+
+  renderObject: function (nu, nv, func, gl, color, time) {
+    var vertices = [];
+    for (var i = 0; i <= nu; i++) {
+      vertices.push([]);
+      for (var j = 0; j <= nv; j++) {
+        vertices[i].push(func([i / nu, j / nv], time));
+        //console.log(time)
+      }
+    }
+    //instead of render vertices. we have uv mesh so now, we should make faces(triangles) to be sent to render triangles
+    var faces = [];
+    for (var i = 0; i < nu; i += 1) {
+      for (var j = 0; j < nv; j += 1) {
+        var a = vertices[i][j];
+        var b = vertices[i][j + 1];
+        var c = vertices[i + 1][j];
+        var d = vertices[i + 1][j + 1];
+
+        faces.push([a, d, c]);
+        faces.push([a, b, d]);
+      }
+    }
+    //console.log(faces)
+    //console.log(this)
+    this.renderFaces(faces, gl, color);
+  }
+
+}
