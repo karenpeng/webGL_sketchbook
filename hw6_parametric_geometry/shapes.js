@@ -1,4 +1,5 @@
 var Noise = require('./noise.js')
+var N = new Noise()
   // var noise = new Noise().noise
   //console.log(Noise)
 
@@ -16,7 +17,6 @@ module.exports = {
   pointOnBlanket: function (uv, time) {
     var u = uv[0];
     var v = uv[1];
-    var N = new Noise()
     var p = N.noise([u, v, 0])
     var theta = 2 * Math.PI * u;
     var x = Math.sin(theta);
@@ -39,6 +39,28 @@ module.exports = {
       z = 1;
     }
     return [x, y, z];
+  },
+
+  pointOnFlag: function(uv, time){
+    var u = uv[0]
+    var v = uv[1]
+    var p = N.noise([u - time, v, time]) * u
+    //var p = Math.sin(u * v * 10 - time * 2) * u
+    var x = u
+    var y = v
+    var z = p
+    return [x, y, z]
+  },
+
+  pointOnWow: function(uv, time){
+    var u = uv[0]
+    var v = uv[1]
+    //var p = N.noise([u - time, v, time]) * u
+    var p = Math.sin(u * v * 10 - time * 3)
+    var x = u
+    var y = v
+    var z = p
+    return [x, y, z]
   },
 
   pointOnSphere: function (uv) {
@@ -65,7 +87,6 @@ module.exports = {
   blob: function (uv, time) {
     var u = uv[0];
     var v = uv[1];
-    var N = new Noise()
 
     // var detail = 5.;
     // var detail2 = 2.;
@@ -89,7 +110,6 @@ module.exports = {
   blob1: function (uv, time) {
     var u = uv[0];
     var v = uv[1];
-    var N = new Noise()
     var p = N.noise([u, v, 0])
 
     var p1 = N.noise([p, time / 10, 0])

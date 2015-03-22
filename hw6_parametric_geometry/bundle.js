@@ -153,7 +153,7 @@ function render() {
   context.clearRect(0, 0, canvas.width, canvas.height)
 
   var time = Date.now() * 0.001
-  var laspe = time - startTime
+  var lapse = time - startTime
   var x = Math.cos(time)
   var y = Math.sin(time)
 
@@ -164,14 +164,23 @@ function render() {
 
   gl.pushMatrix();
   gl.translate(1, 1, 0);
-  util.renderObject(10, 10, shapes.blob, gl, 'red', laspe);
+  util.renderObject(10, 10, shapes.blob, gl, 'red', lapse);
   gl.popMatrix();
 
   gl.pushMatrix();
   //gl.rotateX(time);
   gl.translate(-1, 1, 0);
-  gl.scale(0.5, 0.5, 0.5);
-  util.renderObject(10, 10, shapes.pointOnBlanket, gl, 'white', laspe);
+  //gl.scale(0.5, 0.5, 0.5);
+  //util.renderObject(10, 10, shapes.pointOnBlanket, gl, 'white', laspe);
+  util.renderObject(10, 10, shapes.pointOnFlag, gl, 'white', lapse)
+  gl.popMatrix();
+
+  gl.pushMatrix();
+  //gl.rotateX(time);
+  gl.translate(-2, 1, 0);
+  //gl.scale(0.5, 0.5, 0.5);
+  //util.renderObject(10, 10, shapes.pointOnBlanket, gl, 'white', laspe);
+  util.renderObject(20, 10, shapes.pointOnWow, gl, undefined, lapse)
   gl.popMatrix();
 
   gl.pushMatrix();
@@ -653,6 +662,7 @@ function dot(aVec4, something) {
 }
 },{"./mat4.js":"/Users/karen/Documents/my_project/webGL_sketch/hw6_parametric_geometry/mat4.js","./vec4.js":"/Users/karen/Documents/my_project/webGL_sketch/hw6_parametric_geometry/vec4.js"}],"/Users/karen/Documents/my_project/webGL_sketch/hw6_parametric_geometry/shapes.js":[function(require,module,exports){
 var Noise = require('./noise.js')
+var N = new Noise()
   // var noise = new Noise().noise
   //console.log(Noise)
 
@@ -670,7 +680,6 @@ module.exports = {
   pointOnBlanket: function (uv, time) {
     var u = uv[0];
     var v = uv[1];
-    var N = new Noise()
     var p = N.noise([u, v, 0])
     var theta = 2 * Math.PI * u;
     var x = Math.sin(theta);
@@ -693,6 +702,28 @@ module.exports = {
       z = 1;
     }
     return [x, y, z];
+  },
+
+  pointOnFlag: function(uv, time){
+    var u = uv[0]
+    var v = uv[1]
+    var p = N.noise([u - time, v, time]) * u
+    //var p = Math.sin(u * v * 10 - time * 2) * u
+    var x = u
+    var y = v
+    var z = p
+    return [x, y, z]
+  },
+
+  pointOnWow: function(uv, time){
+    var u = uv[0]
+    var v = uv[1]
+    //var p = N.noise([u - time, v, time]) * u
+    var p = Math.sin(u * v * 10 - time * 3)
+    var x = u
+    var y = v
+    var z = p
+    return [x, y, z]
   },
 
   pointOnSphere: function (uv) {
@@ -719,7 +750,6 @@ module.exports = {
   blob: function (uv, time) {
     var u = uv[0];
     var v = uv[1];
-    var N = new Noise()
 
     // var detail = 5.;
     // var detail2 = 2.;
@@ -743,7 +773,6 @@ module.exports = {
   blob1: function (uv, time) {
     var u = uv[0];
     var v = uv[1];
-    var N = new Noise()
     var p = N.noise([u, v, 0])
 
     var p1 = N.noise([p, time / 10, 0])

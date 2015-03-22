@@ -43,7 +43,7 @@ function render() {
   context.clearRect(0, 0, canvas.width, canvas.height)
 
   var time = Date.now() * 0.001
-  var laspe = time - startTime
+  var lapse = time - startTime
   var x = Math.cos(time)
   var y = Math.sin(time)
 
@@ -54,14 +54,23 @@ function render() {
 
   gl.pushMatrix();
   gl.translate(1, 1, 0);
-  util.renderObject(10, 10, shapes.blob, gl, 'red', laspe);
+  util.renderObject(10, 10, shapes.blob, gl, 'red', lapse);
   gl.popMatrix();
 
   gl.pushMatrix();
   //gl.rotateX(time);
   gl.translate(-1, 1, 0);
-  gl.scale(0.5, 0.5, 0.5);
-  util.renderObject(10, 10, shapes.pointOnBlanket, gl, 'white', laspe);
+  //gl.scale(0.5, 0.5, 0.5);
+  //util.renderObject(10, 10, shapes.pointOnBlanket, gl, 'white', laspe);
+  util.renderObject(10, 10, shapes.pointOnFlag, gl, 'white', lapse)
+  gl.popMatrix();
+
+  gl.pushMatrix();
+  //gl.rotateX(time);
+  gl.translate(-2, 1, 0);
+  //gl.scale(0.5, 0.5, 0.5);
+  //util.renderObject(10, 10, shapes.pointOnBlanket, gl, 'white', laspe);
+  util.renderObject(20, 10, shapes.pointOnWow, gl, undefined, lapse)
   gl.popMatrix();
 
   gl.pushMatrix();
