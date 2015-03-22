@@ -14,6 +14,26 @@ module.exports = {
     return [x, y, z];
   },
 
+  pointOnFunnel: function(uv){
+    var u = uv[0];
+    var v = uv[1];
+    var theta = 2 * Math.PI * u;
+    var y = 2 * v - 1;
+    var x = Math.sin(theta) * y;
+    var z = Math.cos(theta) * y;
+    return [x, y, z];
+  },
+
+    pointOnCone: function(uv){
+    var u = uv[0];
+    var v = uv[1];
+    var theta = 2 * Math.PI * u;
+    var y = 2 * v - 1;
+    var x = Math.sin(theta) * v;
+    var z = Math.cos(theta) * v;
+    return [x, y, z];
+  },
+
   pointOnBlanket: function (uv, time) {
     var u = uv[0];
     var v = uv[1];

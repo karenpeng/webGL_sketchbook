@@ -185,7 +185,7 @@ function render() {
 
   gl.pushMatrix();
   gl.translate(-0.5, -0.8, 0);
-  gl.translate(x, 0, y);
+  gl.translate(x - 0.3, 0, y);
   gl.rotateX(time);
   gl.scale(0.8, 0.8, 0.8);
 
@@ -208,12 +208,13 @@ function render() {
 
   gl.pushMatrix();
   gl.scale(0.3, 0.3, 0.3)
-  util.renderObject(4, 4, shapes.pointOnSphere, gl, 'white');
+  util.renderObject(4, 4, shapes.pointOnSphere, gl, 'red');
   gl.popMatrix();
 
   gl.translate(Math.cos(time), Math.sin(time), 0)
-  gl.scale(0.3, 0.3, 0.3)
-  util.renderObject(4, 4, shapes.pointOnSphere, gl, 'white');
+  gl.scale(0.6, 0.6, 0.6)
+  //util.renderObject(4, 4, shapes.pointOnSphere, gl, 'white');
+  util.renderObject(6, 6, shapes.pointOnCone, gl, 'pink');
 
   gl.popMatrix();
   gl.popMatrix();
@@ -231,10 +232,12 @@ function render() {
 
   gl.scale(0.5, 0.5, 0.5);
   //gl.popMatrix();
-  gl.translate(Math.sin(time), 0, Math.cos(time * 2) * 2);
-  gl.rotateX(time);
-
+  //gl.translate(Math.sin(time), 0, Math.cos(time * 2) * 2);
+  gl.rotateY(time);
+  gl.translate(0,0,Math.sin(time))
+  util.renderObject(10, 10, shapes.pointOnFunnel, gl, 'white');
   //drawThings(oo, ood, 'yellow');
+
 
 }
 
@@ -674,6 +677,26 @@ module.exports = {
     var x = Math.sin(theta);
     var y = 2 * v - 1;
     var z = Math.cos(theta);
+    return [x, y, z];
+  },
+
+  pointOnFunnel: function(uv){
+    var u = uv[0];
+    var v = uv[1];
+    var theta = 2 * Math.PI * u;
+    var y = 2 * v - 1;
+    var x = Math.sin(theta) * y;
+    var z = Math.cos(theta) * y;
+    return [x, y, z];
+  },
+
+    pointOnCone: function(uv){
+    var u = uv[0];
+    var v = uv[1];
+    var theta = 2 * Math.PI * u;
+    var y = 2 * v - 1;
+    var x = Math.sin(theta) * v;
+    var z = Math.cos(theta) * v;
     return [x, y, z];
   },
 
