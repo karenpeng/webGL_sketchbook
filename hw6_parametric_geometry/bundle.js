@@ -163,45 +163,58 @@ function render() {
   gl.rotateY(b)
 
   gl.pushMatrix();
-    gl.translate(1, 1, 0);
-    util.renderObject(10, 10, shapes.blob, gl, 'red', laspe);
+  gl.translate(1, 1, 0);
+  util.renderObject(10, 10, shapes.blob, gl, 'red', laspe);
   gl.popMatrix();
 
   gl.pushMatrix();
-    gl.translate(-0.5, -0.8, 0);
-    gl.translate(x, 0, y);
-    gl.rotateX(time);
-    gl.scale(0.8, 0.8, 0.8);
-
-    //drawThings(pts, edges, 'red');
-
-    gl.pushMatrix();
-      gl.scale(1.2, 1.2, 1.2);
-      util.renderObject(10, 10, shapes.pointOnBagel, gl, 'green');
-    gl.popMatrix();
-    // gl.translate(Math.cos(time), Math.sin(time), 0);
-    // gl.rotateY(time);
-
-    gl.pushMatrix();
-      gl.rotateY(time * 2);
-      gl.scale(0.6, 0.6, 0.6);
-      //drawThings(pts, edges, 'green');
-      util.renderObject(10, 10, shapes.pointOnSphere, gl, 'yellow');
-
-      gl.rotateX(time)
-      gl.scale(0.3, 0.3, 0.3)
-
-         util.renderObject(4, 4, shapes.pointOnSphere, gl, 'white');
-
-    gl.popMatrix();
+  //gl.rotateX(time);
+  gl.translate(-1, 1, 0);
+  gl.scale(0.5, 0.5, 0.5);
+  util.renderObject(10, 10, shapes.pointOnBlanket, gl, 'white', laspe);
   gl.popMatrix();
 
   gl.pushMatrix();
-    gl.translate(1, -1, 0)
-    gl.scale(0.5, 0.5, 0.5);
-    gl.rotateZ(time);
+  gl.translate(-0.5, -0.8, 0);
+  gl.translate(x, 0, y);
+  gl.rotateX(time);
+  gl.scale(0.8, 0.8, 0.8);
 
-util.renderObject(10, 10, shapes.pointOnCylinder, gl, 'white');
+  //drawThings(pts, edges, 'red');
+
+  gl.pushMatrix();
+  gl.scale(1.2, 1.2, 1.2);
+  util.renderObject(10, 10, shapes.pointOnBagel, gl, 'green');
+  gl.popMatrix();
+  // gl.translate(Math.cos(time), Math.sin(time), 0);
+  // gl.rotateY(time);
+
+  gl.pushMatrix();
+  gl.rotateY(time * 2);
+  gl.scale(0.6, 0.6, 0.6);
+  //drawThings(pts, edges, 'green');
+  util.renderObject(10, 10, shapes.pointOnSphere, gl, 'yellow');
+
+  gl.rotateX(time)
+
+  gl.pushMatrix();
+  gl.scale(0.3, 0.3, 0.3)
+  util.renderObject(4, 4, shapes.pointOnSphere, gl, 'white');
+  gl.popMatrix();
+
+  gl.translate(Math.cos(time), Math.sin(time), 0)
+  gl.scale(0.3, 0.3, 0.3)
+  util.renderObject(4, 4, shapes.pointOnSphere, gl, 'white');
+
+  gl.popMatrix();
+  gl.popMatrix();
+
+  gl.pushMatrix();
+  gl.translate(1, -1, 0)
+  gl.scale(0.5, 0.5, 0.5);
+  gl.rotateZ(time);
+
+  util.renderObject(10, 10, shapes.pointOnCylinder, gl);
 
   gl.popMatrix();
 
@@ -213,7 +226,6 @@ util.renderObject(10, 10, shapes.pointOnCylinder, gl, 'white');
   gl.rotateX(time);
 
   //drawThings(oo, ood, 'yellow');
-
 
 }
 
@@ -655,6 +667,34 @@ module.exports = {
     return [x, y, z];
   },
 
+  pointOnBlanket: function (uv, time) {
+    var u = uv[0];
+    var v = uv[1];
+    var N = new Noise()
+    var p = N.noise([u, v, 0])
+    var theta = 2 * Math.PI * u;
+    var x = Math.sin(theta);
+    var y = 2 * v - 1 + N.noise([p, time / 10, 0]);
+    var z = Math.cos(theta) + Math.sin(p + time / 10);
+
+    if (v <= 0.25) {
+      r = 4 * v;
+      z = -1;
+    }
+
+    // TUBE
+    else if (v < 0.75) {
+      z = (v - 0.25) * 4 - 1;
+    }
+
+    // FRONT
+    else {
+      r = 1 - (v - .75) * 4;
+      z = 1;
+    }
+    return [x, y, z];
+  },
+
   pointOnSphere: function (uv) {
     var u = uv[0];
     var v = uv[1];
@@ -685,12 +725,12 @@ module.exports = {
     // var detail2 = 2.;
     // var detail3 = 9.;
     var p = N.noise([u, v, 0])
-    //console.log(p)
+      //console.log(p)
 
-     var p1 = N.noise([p , time / 10, 0])
+    var p1 = N.noise([p, time / 10, 0])
 
-     var p2 = N.noise([p1, 0, time])
-    // var p2 = noise(p1 + time)
+    var p2 = N.noise([p1, 0, time])
+      // var p2 = noise(p1 + time)
 
     var theta = 2 * Math.PI * u;
     var phi = Math.PI * v - Math.PI / 2;
@@ -698,9 +738,29 @@ module.exports = {
     var y = Math.sin(phi) + p1;
     var z = Math.cos(phi) * Math.cos(theta) + p2;
     return [x, y, z];
+  },
+
+  blob1: function (uv, time) {
+    var u = uv[0];
+    var v = uv[1];
+    var N = new Noise()
+    var p = N.noise([u, v, 0])
+
+    var p1 = N.noise([p, time / 10, 0])
+
+    var p2 = N.noise([p1, 0, time])
+
+    var theta = 2 * Math.PI * u;
+    var x = Math.sin(theta);
+    var y = 2 * v - 1 + Math.cos(p + time);
+    var z = Math.cos(theta);
+    return [x, y, z];
   }
 }
 },{"./noise.js":"/Users/karen/Documents/my_project/webGL_sketch/hw6_parametric_geometry/noise.js"}],"/Users/karen/Documents/my_project/webGL_sketch/hw6_parametric_geometry/util.js":[function(require,module,exports){
+var Noise = require('./noise.js')
+var N = new Noise()
+
 module.exports = {
 
   renderTriangle: function (tri, gl, color) {
@@ -722,16 +782,36 @@ module.exports = {
   drawCurve: function (C, gl, color) {
     //console.log(gl)
     gl.context.beginPath();
-    gl.context.strokeStyle = color;
     //console.log(color)
-    for (var i = 0; i < C.length; i++)
+    for (var i = 0; i < C.length; i++) {
       if (i == 0) {
-        //console.log(C[i])
+        switch (color) {
+        case undefined:
+          var r = Math.floor(128 + 127 * Math.cos(C[i][0]));
+          var g = Math.floor(128 + 127 * Math.sin(C[i][1]));
+          var b = Math.floor(255)
+          gl.context.strokeStyle = 'rgb(' + r.toString() + ',' + g.toString() + ',' + b.toString() + ')'
+          break;
+          // case 'red':
+          //   var p = N.noise([C[i][0], 0, 0]);
+          //   var p2 = N.noise([C[i][1], 0, 0])
+          //     //console.log(p);
+          //   var g = Math.floor(128 + 127 * p);
+          //   var b = Math.floor(128 + 127 * p2);
+          //   //g.strokeStyle = 'rgb(50,200,' + val.toString() + ')';
+          //   gl.context.strokeStyle = 'rgb(255,' + g.toString() + ',' + b.toString() + '50,0)'
+          //     //console.log(color)
+          //   break;
+        default:
+          gl.context.strokeStyle = color;
+          break
+        }
         gl.context.moveTo(C[i][0], C[i][1]);
       } else {
         //console.log(C[i])
         gl.context.lineTo(C[i][0], C[i][1]);
       }
+    }
     gl.context.stroke();
   },
 
@@ -813,7 +893,7 @@ module.exports = {
   }
 
 }
-},{}],"/Users/karen/Documents/my_project/webGL_sketch/hw6_parametric_geometry/vec4.js":[function(require,module,exports){
+},{"./noise.js":"/Users/karen/Documents/my_project/webGL_sketch/hw6_parametric_geometry/noise.js"}],"/Users/karen/Documents/my_project/webGL_sketch/hw6_parametric_geometry/vec4.js":[function(require,module,exports){
 module.exports = Vec4
 
 function Vec4(x, y, z, w) {

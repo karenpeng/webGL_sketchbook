@@ -1,3 +1,6 @@
+var Noise = require('./noise.js')
+var N = new Noise()
+
 module.exports = {
 
   renderTriangle: function (tri, gl, color) {
@@ -19,16 +22,36 @@ module.exports = {
   drawCurve: function (C, gl, color) {
     //console.log(gl)
     gl.context.beginPath();
-    gl.context.strokeStyle = color;
     //console.log(color)
-    for (var i = 0; i < C.length; i++)
+    for (var i = 0; i < C.length; i++) {
       if (i == 0) {
-        //console.log(C[i])
+        switch (color) {
+        case undefined:
+          var r = Math.floor(128 + 127 * Math.cos(C[i][0]));
+          var g = Math.floor(128 + 127 * Math.sin(C[i][1]));
+          var b = Math.floor(255)
+          gl.context.strokeStyle = 'rgb(' + r.toString() + ',' + g.toString() + ',' + b.toString() + ')'
+          break;
+          // case 'red':
+          //   var p = N.noise([C[i][0], 0, 0]);
+          //   var p2 = N.noise([C[i][1], 0, 0])
+          //     //console.log(p);
+          //   var g = Math.floor(128 + 127 * p);
+          //   var b = Math.floor(128 + 127 * p2);
+          //   //g.strokeStyle = 'rgb(50,200,' + val.toString() + ')';
+          //   gl.context.strokeStyle = 'rgb(255,' + g.toString() + ',' + b.toString() + '50,0)'
+          //     //console.log(color)
+          //   break;
+        default:
+          gl.context.strokeStyle = color;
+          break
+        }
         gl.context.moveTo(C[i][0], C[i][1]);
       } else {
         //console.log(C[i])
         gl.context.lineTo(C[i][0], C[i][1]);
       }
+    }
     gl.context.stroke();
   },
 

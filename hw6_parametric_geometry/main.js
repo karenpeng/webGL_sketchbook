@@ -53,45 +53,58 @@ function render() {
   gl.rotateY(b)
 
   gl.pushMatrix();
-    gl.translate(1, 1, 0);
-    util.renderObject(10, 10, shapes.blob, gl, 'red', laspe);
+  gl.translate(1, 1, 0);
+  util.renderObject(10, 10, shapes.blob, gl, 'red', laspe);
   gl.popMatrix();
 
   gl.pushMatrix();
-    gl.translate(-0.5, -0.8, 0);
-    gl.translate(x, 0, y);
-    gl.rotateX(time);
-    gl.scale(0.8, 0.8, 0.8);
-
-    //drawThings(pts, edges, 'red');
-
-    gl.pushMatrix();
-      gl.scale(1.2, 1.2, 1.2);
-      util.renderObject(10, 10, shapes.pointOnBagel, gl, 'green');
-    gl.popMatrix();
-    // gl.translate(Math.cos(time), Math.sin(time), 0);
-    // gl.rotateY(time);
-
-    gl.pushMatrix();
-      gl.rotateY(time * 2);
-      gl.scale(0.6, 0.6, 0.6);
-      //drawThings(pts, edges, 'green');
-      util.renderObject(10, 10, shapes.pointOnSphere, gl, 'yellow');
-
-      gl.rotateX(time)
-      gl.scale(0.3, 0.3, 0.3)
-
-         util.renderObject(4, 4, shapes.pointOnSphere, gl, 'white');
-
-    gl.popMatrix();
+  //gl.rotateX(time);
+  gl.translate(-1, 1, 0);
+  gl.scale(0.5, 0.5, 0.5);
+  util.renderObject(10, 10, shapes.pointOnBlanket, gl, 'white', laspe);
   gl.popMatrix();
 
   gl.pushMatrix();
-    gl.translate(1, -1, 0)
-    gl.scale(0.5, 0.5, 0.5);
-    gl.rotateZ(time);
+  gl.translate(-0.5, -0.8, 0);
+  gl.translate(x, 0, y);
+  gl.rotateX(time);
+  gl.scale(0.8, 0.8, 0.8);
 
-util.renderObject(10, 10, shapes.pointOnCylinder, gl, 'white');
+  //drawThings(pts, edges, 'red');
+
+  gl.pushMatrix();
+  gl.scale(1.2, 1.2, 1.2);
+  util.renderObject(10, 10, shapes.pointOnBagel, gl, 'green');
+  gl.popMatrix();
+  // gl.translate(Math.cos(time), Math.sin(time), 0);
+  // gl.rotateY(time);
+
+  gl.pushMatrix();
+  gl.rotateY(time * 2);
+  gl.scale(0.6, 0.6, 0.6);
+  //drawThings(pts, edges, 'green');
+  util.renderObject(10, 10, shapes.pointOnSphere, gl, 'yellow');
+
+  gl.rotateX(time)
+
+  gl.pushMatrix();
+  gl.scale(0.3, 0.3, 0.3)
+  util.renderObject(4, 4, shapes.pointOnSphere, gl, 'white');
+  gl.popMatrix();
+
+  gl.translate(Math.cos(time), Math.sin(time), 0)
+  gl.scale(0.3, 0.3, 0.3)
+  util.renderObject(4, 4, shapes.pointOnSphere, gl, 'white');
+
+  gl.popMatrix();
+  gl.popMatrix();
+
+  gl.pushMatrix();
+  gl.translate(1, -1, 0)
+  gl.scale(0.5, 0.5, 0.5);
+  gl.rotateZ(time);
+
+  util.renderObject(10, 10, shapes.pointOnCylinder, gl);
 
   gl.popMatrix();
 
@@ -103,7 +116,6 @@ util.renderObject(10, 10, shapes.pointOnCylinder, gl, 'white');
   gl.rotateX(time);
 
   //drawThings(oo, ood, 'yellow');
-
 
 }
 
