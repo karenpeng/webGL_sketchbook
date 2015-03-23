@@ -1,6 +1,8 @@
 # webGL_sketchbook
 Homework for Computer Graphics class by professor [Ken Perlin](https://mrl.nyu.edu/~perlin/) 
 
+Homework page: http://karenpeng.github.io/webGL_sketchbook/
+
 Syllabus:
 - Introductory lecture
 - Working with fragment shaders
