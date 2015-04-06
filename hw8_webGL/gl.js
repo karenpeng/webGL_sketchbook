@@ -383,7 +383,7 @@
                               vBuffer.stride,
                               vBuffer.uvOffset
                               );
-      gl.uniformMatrix4fv(sProgram.pMatrixUniform, false, perspective(10));
+      gl.uniformMatrix4fv(sProgram.pMatrixUniform, false, perspective(50));
       gl.uniformMatrix4fv(sProgram.oMatrixUniform, false, obj.matrix);
       gl.uniformMatrix4fv(sProgram.nMatrixUniform, false, normalMatrix(obj.matrix));
 

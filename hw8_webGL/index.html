@@ -15,6 +15,13 @@
       margin-left: -400px;
       margin-top: -300px;
     }
+    #videoel{
+      visibility: hidden;
+    }
+    #hint{
+      position: absolute;
+      bottom: 0;
+    }
   </style>
 </head>
 <body onload=glStart()>
@@ -27,8 +34,57 @@
 </video>
 <canvas id="cover" width='800' height='600'></canvas>
 <canvas id='canvas1' data-render=gl width='800' height='600'></canvas>
-
+<div id="hint">
+<p>1. allow your webcam</p>
+<p>2. click start</p>
+<p>If your webcam doesn't work, check out this screen record: <a href="https://www.youtube.com/watch?v=OuWn9QXMikQ&feature=youtube_gdata_player">click me:)</a></p>
+</div>
 </body>
+
+<script id='fs_uv' type='x-shader/x-fragment'>
+    uniform vec3 rgb;
+    varying vec3 vNormal;
+    varying vec2 vUV;
+    void main(void) {
+       float c = 2.*max(0.,dot(vec3(.3,.3,.3),normalize(vNormal)));
+       float u = .5+.5*sin(30.*vUV.x);
+       float v = .5+.5*sin(40.*vUV.y);
+       gl_FragColor = vec4(c*rgb*vec3(u,v,1.), 1.);
+    }
+</script>
+
+<script id='fs_phong' type='x-shader/x-fragment'>
+    uniform float p[10];
+    uniform vec3 lDir;
+    varying vec3 vNormal;
+
+    void main(void) {
+
+       // NORMALIZE LENGTH OF THE INTERPOLATED NORMAL
+
+       vec3 normal = normalize(vNormal);
+
+       // COMPUTE DIFFUSE FACTOR
+
+       float l_dot_n = dot(lDir, normal);
+       float diffuse = max(0., l_dot_n);
+
+       // COMPUTE SPECULAR FACTOR
+
+       vec3 refl = 2. * l_dot_n * normal - lDir;
+       float specular = pow(max(0., refl.z), p[9]);
+
+       // SUM THE PHONG REFLECTION COMPONENTS
+
+       vec3 c = vec3(p[0],p[1],p[2]) +
+                vec3(p[3],p[4],p[5]) * diffuse +
+                vec3(p[6],p[7],p[8]) * specular;
+
+       // APPLY GAMMA CORRECTION
+
+       gl_FragColor = vec4(pow(c, vec3(.45,.45,.45)), 1.);
+    }
+</script>
 
 <script id="norm" type="x-shader/x-fragment">
   varying vec3 vNormal;
@@ -73,6 +129,7 @@
     gl_FragColor = vec4(camNorm.xyz, 1.0);
   }
 </script>
+
 <script src="./vendor/utils.js"></script>
 <script src="./vendor/numeric-1.2.6.min.js"></script>
 <script src="./vendor/mosse.js"></script>

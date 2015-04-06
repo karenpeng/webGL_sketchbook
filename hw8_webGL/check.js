@@ -77,7 +77,7 @@ function drawLoop() {
     ctx.fillRect(b[0], b[1], 10, 10);
     exports.eye1 = inverseViewPort(positions[27]);
     exports.eye2 = inverseViewPort(positions[32]);
-    console.log(exports.eye1)
+    //console.log(exports.eye1)
   }
 }
 
