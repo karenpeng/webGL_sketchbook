@@ -1,0 +1,93 @@
+<head>
+  <script src=gl.js></script>
+  <style type="text/css">
+    #cover{
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      margin-left: -400px;
+      margin-top: -300px;
+    }
+    #canvas1{
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      margin-left: -400px;
+      margin-top: -300px;
+    }
+  </style>
+</head>
+<body onload=glStart()>
+<center>
+<input class="btn" type="button" value="wait, loading video" disabled="disabled"  id="startbutton"></input>
+</center>
+<video id="videoel" width="120" height="90" preload="auto" loop>
+          <!--<video id="videoel" width="320" height="240" preload="auto">-->
+          <!--<source src="./media/franck.ogv" type="video/ogg"/>-->
+</video>
+<canvas id="cover" width='800' height='600'></canvas>
+<canvas id='canvas1' data-render=gl width='800' height='600'></canvas>
+
+</body>
+
+<script id="norm" type="x-shader/x-fragment">
+  varying vec3 vNormal;
+  uniform float color;
+  varying vec2 vUV;
+  varying vec3 vXYZ;
+  void main(void) {
+    gl_FragColor = vec4(vNormal, 1.0);
+  }
+</script>
+
+<script type="x-shader/x-vertex" id="bumpVert">
+   attribute vec3 aVertexPosition;
+   attribute vec3 aVertexNormal;
+   attribute vec2 aVertexUV;
+   uniform mat4 uPMatrix; /* perspective matrix */
+   uniform mat4 uOMatrix; /* object matrix */
+   uniform mat4 uNMatrix; /* normal matrix */
+  varying vec3 vNormal;
+  varying vec3 vXYZ;
+  varying vec2 vUV;
+  varying vec3 wNormal;
+  uniform float switcher;
+  void main() {
+    vNormal = normalize((uNMatrix * vec4(aVertexNormal, 0.0)).xyz);
+    vXYZ = aVertexPosition;
+    vUV = aVertexUV;
+    wNormal = mat3(uOMatrix[0].xyz,uOMatrix[1].xyz,uOMatrix[2].xyz)*vNormal;
+    wNormal = normalize(wNormal);
+    gl_Position = uPMatrix * uOMatrix * vec4(aVertexPosition, 1.0);
+  }
+</script>
+
+<script type="x-shader/x-fragment" id="camSpaceNorm">
+  uniform mat4 camMat;
+  uniform mat4 camMatInverse;
+  varying vec3 wNormal;
+  varying vec2 vUV;
+  varying vec3 vXYZ;
+  void main(void) {
+    vec4 camNorm = vec4(vec3(wNormal),0.) * camMat;
+    gl_FragColor = vec4(camNorm.xyz, 1.0);
+  }
+</script>
+<script src="./vendor/utils.js"></script>
+<script src="./vendor/numeric-1.2.6.min.js"></script>
+<script src="./vendor/mosse.js"></script>
+<script src="./vendor/jsfeat-min.js"></script>
+<script src="./vendor/frontalface.js"></script>
+<script src="./vendor/jsfeat_detect.js"></script>
+<script src="./vendor/left_eye_filter.js"></script>
+<script src="./vendor/right_eye_filter.js"></script>
+<script src="./vendor/nose_filter.js"></script>
+<script src="./models/model_pca_20_svm.js"></script>
+<script src="./vendor/clm.js"></script>
+<script src="./vendor/svmfilter_webgl.js"></script>
+<script src="./vendor/svmfilter_fft.js"></script>
+<script src="./vendor/mossefilter.js"></script>
+<script type="text/javascript" src="vendor/stats.min.js"></script>
+<script src="bundle.js"></script>
+
+

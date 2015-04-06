@@ -10,6 +10,7 @@ function GL(id) {
   this.eyeMatrix = Mat4();
   this.projectionMatrix = Mat4();
   this.canvas = document.getElementById(id);
+  this.context = this.canvas.getContext('2d');
 }
 
 GL.prototype.cameraPosition = function (x, y, z) {

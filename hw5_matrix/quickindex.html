@@ -1,0 +1,35 @@
+<style type="text/css">
+body,html{
+  background-color: black;
+  top:0;
+  left: 0;
+  margin: 0;
+  padding: 0;
+}
+  #canvas1{
+    background-color: black;
+  }
+  #instruction{
+    position: absolute;
+    top:0;
+    color:white;
+  }
+</style>
+<center>
+<canvas id='canvas1' width='640' height='640'></canvas>
+</center>
+<div id="info"></div>
+<script type="text/javascript">
+function resize(){
+  var w = window.innerWidth;
+  var h = window.innerHeight;
+  document.getElementById('canvas1').setAttribute('width', w + 'px');
+  document.getElementById('canvas1').setAttribute('height', h + 'px');
+}
+
+resize();
+
+window.addEventListener('resize', resize);
+
+</script>
+<script type="text/javascript" src="quickbundle.js"></script>
