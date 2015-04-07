@@ -18,13 +18,16 @@ points.push(new Point(10,canvas.height - 10));
 points.push(new Point(canvas.width - 10, 10));
 
 function init(){
- for(var i = 0; i < 10; i++){
+ pointsMove.push(new Point(10,canvas.height - 10));
+ for(var i = 0; i < 6; i++){
     pointsMove.push(new Point(
       Math.random()*(canvas2.width-20)+10,
       Math.random()*(canvas2.height-20)+10
     ));
   }
+  pointsMove.push(new Point(canvas.width - 10, 10));
 }
+
 document.getElementById('start').onclick = function(){
   init();
 }
@@ -81,9 +84,12 @@ function animate(){
   cxt2.clearRect(0,0, canvas2.width, canvas2.height);
   if(pointsMove.length){
 
-    pointsMove.forEach(function(p){
+    //pointsMove.forEach(function(p){
+    for(var i = 1; i< pointsMove.length -1; i++){
+      var p = pointsMove[i];
       p.wow(canvas2.width, canvas2.height);
-    });
+    }
+    //});
 
     draw.drawPoint(pointsMove, cxt2);
     draw.drawBezierSpline(pointsMove, cxt2);

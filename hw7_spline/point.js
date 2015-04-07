@@ -1,14 +1,11 @@
-var Noise = require('./noise.js');
-var N = new Noise();
-
 function Point(x,y){
   this.x = x;
   this.y = y;
   this.color = 'green';
   this.threshold = 3 * 3;
   this.dragable = false;
-  this.a = Math.random()*10;
-  this.b = Math.random()*10;
+  this.a = Math.random()*6-3;
+  this.b = Math.random()*6-3;
 }
 
 Point.prototype.isDrag = function(a, b){
@@ -28,16 +25,12 @@ Point.prototype.set = function(x, y){
 }
 
 Point.prototype.wow = function(w,h){
-  var lerpX = map(N.noise([this.a, this.b, 0]), 0, 1, -5, 6);
-  var lerpY = map(N.noise([this.b, this.a, 0]), 0, 1, -5, 6);
-  console.log(lerpX)
-  this.x += lerpX;
-  this.y += lerpY;
-  this.a += 0.006;
-  this.b += 0.006;
 
-  this.x = constrain(this.x, 10, w -10);
-  this.y = constrain(this.y, 10, h -10);
+  this.x += this.a;
+  this.y += this.b;
+
+if(this.x < 10 || this.x > w-10) this.a *= -1;
+if(this.y < 10 || this.y > h-10) this.b *= -1;
 }
 
 module.exports = Point;
