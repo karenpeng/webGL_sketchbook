@@ -1,11 +1,7 @@
 var Bezier = require('./bezier.js');
 var Hermite = require('./hermite.js');
-var Vec3 = require('./vec3.js');
 
-var canvas = document.getElementById('canvas1');
-var g = canvas.getContext('2d');
-
-exports.drawBezierSpline = function (points) {
+exports.drawBezierSpline = function (points, g) {
   var num = points.length;
 
   if (num < 3) {
@@ -19,7 +15,7 @@ exports.drawBezierSpline = function (points) {
     res.push(Bezier.getCoord(t, points));
   }
 
-  exports.drawSpline(res);
+  exports.drawSpline(res, g);
 };
 
 exports.drawHermiteSpline = function (P0, P1, R0, R1) {
@@ -36,17 +32,14 @@ exports.drawHermiteSpline = function (P0, P1, R0, R1) {
   exports.drawSpline(res, 0);
 };
 
-exports.drawSpline = function (vertices) {
-
+exports.drawSpline = function (vertices, g) {
+  //console.log(vertices.length)
   for (var i = 0; i < vertices.length - 1; i++) {
-    // var vertex1 = new Vec3(0, 0, 0);
-    // var vertex2 = new Vec3(0, 0, 0);
-    // transform(vertices[i], vertex1);
-    // transform(vertices[i + 1], vertex2);
-    // var p1 = viewport(vertex1, canvas);
-    // var p2 = viewport(vertex2, canvas);
     var p1 = vertices[i];
     var p2 = vertices[i+1];
+    g.fillStyle = 'black';
+    g.fillRect(p1.x, p1.y, 2, 2);
+    g.fillRect(p2.x, p2.y, 2, 2);
     g.strokeStyle = 'black';
     g.beginPath();
     g.moveTo(p1.x, p1.y);
@@ -55,17 +48,17 @@ exports.drawSpline = function (vertices) {
   }
 };
 
+exports.outputData = function(vertices){
+
+}
+
 var radius = 6;
 
-exports.drawPoint = function(points){
+exports.drawPoint = function(points, g){
   for (var i = 0; i < points.length; i++) {
     var point = points[i];
-    //var vertex = new Vec3(0, 0, 0);
-    //transform(point, vertex);
-    //var p = viewport(vertex, canvas);
 
     g.beginPath();
-    // g.arc(p[0], p[1], radius, 0, 2 * Math.PI, false);
     g.arc(point.x, point.y, radius, 0, 2 * Math.PI, false);
     g.fillStyle = point.color;
     g.fill();
@@ -75,19 +68,13 @@ exports.drawPoint = function(points){
   }
 }
 
-exports.drawAuxiliaryLines = function (points) {
+exports.drawAuxiliaryLines = function (points, g) {
 
   var defaultLineDash = g.getLineDash();
   g.setLineDash([2]);
   g.strokeStyle = 'gray';
 
   for (var i = 0; i < points.length - 1; i++) {
-    // var vertex1 = Vec3(0, 0, 0);
-    // var vertex2 = Vec3(0, 0, 0);
-    // transform(points[i], vertex1);
-    // transform(points[i + 1], vertex2);
-    // var p1 = viewport(vertex1, canvas);
-    // var p2 = viewport(vertex2, canvas);
     var p1 = points[i];
     var p2 = points[i+1];
     g.beginPath();
@@ -97,17 +84,4 @@ exports.drawAuxiliaryLines = function (points) {
   }
 
   g.setLineDash(defaultLineDash);
-}
-
-function transform(src, dst) {
-  w = this.matrix[8] * src[0] + this.matrix[9] * src[1] + this.matrix[10] * src[2] + this.matrix[11];
-  dst[0] = (this.matrix[0] * src[0] + this.matrix[1] * src[1] + this.matrix[2] * src[2] + this.matrix[3]) / w;
-  dst[1] = (this.matrix[4] * src[0] + this.matrix[5] * src[1] + this.matrix[6] * src[2] + this.matrix[7]) / w;
-  dst[2] = (this.matrix[8] * src[0] + this.matrix[9] * src[1] + this.matrix[10] * src[2] + this.matrix[11]) / w;
-}
-
-function viewport(p, can){
-  var x = (can.width / 2) + p[0] * (can.width / 2);
-  var y =  -(p[1] - (can.height / 2)) / (can.width / 2);
-  return [x, y];
 }

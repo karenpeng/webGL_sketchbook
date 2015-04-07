@@ -1,20 +1,33 @@
 var Bezier = require('./bezier.js');
 var Hermite = require('./hermite.js');
-var Vec3 = require('./vec3.js');
 var draw = require('./draw.js');
 var Point = require('./point.js');
 
 var canvas = document.getElementById('canvas1');
 var cxt = canvas.getContext('2d');
 
-// var canvas = document.getElementById('canvas1');
-// var g = canvas.getContext('2d');
+var canvas2 = document.getElementById('canvas2');
+var cxt2 = canvas2.getContext('2d');
 
 var points = [];
-points.push(new Point(10,10));
-points.push(new Point(canvas.width - 10, canvas.height - 10));
+var pointsMove = [];
 var mouseIsDown = false;
 var mouseIsOnPoint = false;
+
+points.push(new Point(10,canvas.height - 10));
+points.push(new Point(canvas.width - 10, 10));
+
+function init(){
+ for(var i = 0; i < 10; i++){
+    pointsMove.push(new Point(
+      Math.random()*(canvas2.width-20)+10,
+      Math.random()*(canvas2.height-20)+10
+    ));
+  }
+}
+document.getElementById('start').onclick = function(){
+  init();
+}
 
 window.onmousedown = function(e){
   //var p = viewPortForMouse(e.pageX, e.pageY);
@@ -29,29 +42,26 @@ window.onmousedown = function(e){
 }
 
 window.onmousemove = function(e){
-  var hit = 0;
+  mouseIsOnPoint = false;
   if(points.length >= 3){
     for(var i = 1; i< points.length - 1; i++){
       if(points[i].isDrag(e.pageX, e.pageY)){
-        hit ++;
+        mouseIsOnPoint = true;
         break;
       }
     }
-    mouseIsOnPoint = hit > 0 ? true : false;
   }
 
 
   if(mouseIsDown){
     points.forEach(function(p){
       if(p.dragable){
-        console.log('hello?')
         p.color = 'red';
         p.set(e.pageX, e.pageY);
       }
     })
   }
 }
-
 
 window.onmouseup = function(){
   mouseIsDown = false;
@@ -63,13 +73,31 @@ window.onmouseup = function(){
 function animate(){
   cxt.clearRect(0,0, canvas.width, canvas.height);
   if(points.length){
-    draw.drawPoint(points);
-    draw.drawBezierSpline(points);
-    draw.drawAuxiliaryLines(points);
+    draw.drawPoint(points, cxt);
+    draw.drawBezierSpline(points, cxt);
+    draw.drawAuxiliaryLines(points, cxt);
   }
-  //mouseDetect();
-  //console.log(mouseIsOnPoint)
+
+  cxt2.clearRect(0,0, canvas2.width, canvas2.height);
+  if(pointsMove.length){
+
+    pointsMove.forEach(function(p){
+      p.wow(canvas2.width, canvas2.height);
+    });
+
+    draw.drawPoint(pointsMove, cxt2);
+    draw.drawBezierSpline(pointsMove, cxt2);
+    draw.drawAuxiliaryLines(pointsMove, cxt2);
+  }
+
   requestAnimationFrame(animate);
 }
 
 animate();
+
+
+
+
+
+
+
