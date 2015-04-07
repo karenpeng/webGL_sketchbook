@@ -539,8 +539,8 @@ Point.prototype.wow = function(w,h){
   console.log(lerpX)
   this.x += lerpX;
   this.y += lerpY;
-  this.a += 0.01;
-  this.b += 0.01;
+  this.a += 0.006;
+  this.b += 0.006;
 
   this.x = constrain(this.x, 10, w -10);
   this.y = constrain(this.y, 10, h -10);
